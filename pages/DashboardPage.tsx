@@ -28,6 +28,13 @@ export function DashboardPage() {
   const isRussian = language === "ru";
   const [searchQuery, setSearchQuery] = useState("");
   const [activeTab, setActiveTab] = useState<"metrics" | "recordings">("metrics");
+  const [showNotifications, setShowNotifications] = useState(false);
+  const [showFilters, setShowFilters] = useState(false);
+  const [filters, setFilters] = useState({
+    timeRange: "24h",
+    dataType: "all",
+    showTrends: true,
+  });
 
   const [realTimeData, setRealTimeData] = useState({
     temperature: -15.3,
@@ -55,6 +62,20 @@ export function DashboardPage() {
     }, 3000);
 
     return () => clearInterval(interval);
+  }, []);
+
+  // Close dropdowns when clicking outside
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      const target = event.target as Element;
+      if (!target.closest('[data-dropdown]')) {
+        setShowNotifications(false);
+        setShowFilters(false);
+      }
+    };
+
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => document.removeEventListener('mousedown', handleClickOutside);
   }, []);
 
   return (
@@ -128,23 +149,153 @@ export function DashboardPage() {
                   />
                 </motion.button>
 
-                <motion.button
-                  whileHover={{ scale: 1.1 }}
-                  whileTap={{ scale: 0.9 }}
-                  className="p-2 hover:bg-white/5 rounded-lg transition-colors relative"
-                  title={isRussian ? "Уведомления" : "Notifications"}
-                >
-                  <Bell className="w-5 h-5" />
-                  <div className="absolute top-1 right-1 w-2 h-2 bg-orange-500 rounded-full" />
-                </motion.button>
-                <motion.button
-                  whileHover={{ scale: 1.1 }}
-                  whileTap={{ scale: 0.9 }}
-                  className="p-2 hover:bg-white/5 rounded-lg transition-colors"
-                  title={isRussian ? "Фильтры" : "Filters"}
-                >
-                  <Filter className="w-5 h-5" />
-                </motion.button>
+                <div className="relative" data-dropdown>
+                  <motion.button
+                    whileHover={{ scale: 1.1 }}
+                    whileTap={{ scale: 0.9 }}
+                    onClick={() => setShowNotifications(!showNotifications)}
+                    className="p-2 hover:bg-white/5 rounded-lg transition-colors relative"
+                    title={isRussian ? "Уведомления" : "Notifications"}
+                  >
+                    <Bell className="w-5 h-5" />
+                    <div className="absolute top-1 right-1 w-2 h-2 bg-orange-500 rounded-full" />
+                  </motion.button>
+
+                  {/* Notifications Dropdown */}
+                  {showNotifications && (
+                    <motion.div
+                      initial={{ opacity: 0, y: -10, scale: 0.95 }}
+                      animate={{ opacity: 1, y: 0, scale: 1 }}
+                      exit={{ opacity: 0, y: -10, scale: 0.95 }}
+                      className="absolute right-0 top-12 w-80 backdrop-blur-xl bg-black/90 border border-white/10 rounded-xl shadow-2xl z-50"
+                    >
+                      <div className="p-4 border-b border-white/10">
+                        <h3 className="font-semibold">
+                          {isRussian ? "Уведомления" : "Notifications"}
+                        </h3>
+                      </div>
+                      <div className="p-4">
+                        <motion.div
+                          initial={{ opacity: 0, x: -20 }}
+                          animate={{ opacity: 1, x: 0 }}
+                          className="p-3 bg-orange-500/10 border border-orange-500/20 rounded-lg"
+                        >
+                          <div className="flex items-start gap-3">
+                            <div className="w-8 h-8 rounded-full bg-orange-500/20 flex items-center justify-center flex-shrink-0">
+                              <Sparkles className="w-4 h-4 text-orange-500" />
+                            </div>
+                            <div className="flex-1">
+                              <h4 className="font-medium text-sm">
+                                {isRussian ? "Добро пожаловать в Arctic Network!" : "Welcome to Arctic Network!"}
+                              </h4>
+                              <p className="text-xs text-neutral-400 mt-1">
+                                {isRussian
+                                  ? "Ваша панель управления готова. Начните мониторинг климатических данных."
+                                  : "Your control panel is ready. Start monitoring climate data."
+                                }
+                              </p>
+                              <div className="text-xs text-neutral-500 mt-2">
+                                {new Date().toLocaleString()}
+                              </div>
+                            </div>
+                          </div>
+                        </motion.div>
+                      </div>
+                    </motion.div>
+                  )}
+                </div>
+                <div className="relative" data-dropdown>
+                  <motion.button
+                    whileHover={{ scale: 1.1 }}
+                    whileTap={{ scale: 0.9 }}
+                    onClick={() => setShowFilters(!showFilters)}
+                    className="p-2 hover:bg-white/5 rounded-lg transition-colors"
+                    title={isRussian ? "Фильтры" : "Filters"}
+                  >
+                    <Filter className="w-5 h-5" />
+                  </motion.button>
+
+                  {/* Filters Dropdown */}
+                  {showFilters && (
+                    <motion.div
+                      initial={{ opacity: 0, y: -10, scale: 0.95 }}
+                      animate={{ opacity: 1, y: 0, scale: 1 }}
+                      exit={{ opacity: 0, y: -10, scale: 0.95 }}
+                      className="absolute right-0 top-12 w-80 backdrop-blur-xl bg-black/90 border border-white/10 rounded-xl shadow-2xl z-50"
+                    >
+                      <div className="p-4 border-b border-white/10">
+                        <h3 className="font-semibold">
+                          {isRussian ? "Фильтры" : "Filters"}
+                        </h3>
+                      </div>
+                      <div className="p-4 space-y-4">
+                        {/* Time Range Filter */}
+                        <div>
+                          <label className="block text-sm font-medium mb-2">
+                            {isRussian ? "Временной диапазон" : "Time Range"}
+                          </label>
+                          <select
+                            value={filters.timeRange}
+                            onChange={(e) => setFilters(prev => ({ ...prev, timeRange: e.target.value }))}
+                            className="w-full px-3 py-2 bg-white/5 border border-white/10 rounded-lg focus:border-orange-500 focus:outline-none"
+                          >
+                            <option value="1h">{isRussian ? "Последний час" : "Last Hour"}</option>
+                            <option value="24h">{isRussian ? "Последние 24 часа" : "Last 24 Hours"}</option>
+                            <option value="7d">{isRussian ? "Последние 7 дней" : "Last 7 Days"}</option>
+                            <option value="30d">{isRussian ? "Последние 30 дней" : "Last 30 Days"}</option>
+                          </select>
+                        </div>
+
+                        {/* Data Type Filter */}
+                        <div>
+                          <label className="block text-sm font-medium mb-2">
+                            {isRussian ? "Тип данных" : "Data Type"}
+                          </label>
+                          <select
+                            value={filters.dataType}
+                            onChange={(e) => setFilters(prev => ({ ...prev, dataType: e.target.value }))}
+                            className="w-full px-3 py-2 bg-white/5 border border-white/10 rounded-lg focus:border-orange-500 focus:outline-none"
+                          >
+                            <option value="all">{isRussian ? "Все" : "All"}</option>
+                            <option value="temperature">{isRussian ? "Температура" : "Temperature"}</option>
+                            <option value="ice">{isRussian ? "Ледовый покров" : "Ice Coverage"}</option>
+                            <option value="pollution">{isRussian ? "Загрязнение" : "Pollution"}</option>
+                            <option value="wildlife">{isRussian ? "Дикая природа" : "Wildlife"}</option>
+                          </select>
+                        </div>
+
+                        {/* Show Trends Toggle */}
+                        <div className="flex items-center justify-between">
+                          <label className="text-sm font-medium">
+                            {isRussian ? "Показывать тренды" : "Show Trends"}
+                          </label>
+                          <button
+                            onClick={() => setFilters(prev => ({ ...prev, showTrends: !prev.showTrends }))}
+                            className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors ${
+                              filters.showTrends ? 'bg-orange-500' : 'bg-white/20'
+                            }`}
+                          >
+                            <span
+                              className={`inline-block h-4 w-4 transform rounded-full bg-white transition-transform ${
+                                filters.showTrends ? 'translate-x-6' : 'translate-x-1'
+                              }`}
+                            />
+                          </button>
+                        </div>
+
+                        {/* Apply Filters Button */}
+                        <motion.button
+                          whileHover={{ scale: 1.02 }}
+                          whileTap={{ scale: 0.98 }}
+                          onClick={() => setShowFilters(false)}
+                          className="w-full px-4 py-2 bg-orange-500 hover:bg-orange-600 rounded-lg transition-colors"
+                        >
+                          {isRussian ? "Применить" : "Apply"}
+                        </motion.button>
+                      </div>
+                    </motion.div>
+                  )}
+                </div>
                 <motion.button
                   whileHover={{ scale: 1.1 }}
                   whileTap={{ scale: 0.9 }}
@@ -243,42 +394,76 @@ export function DashboardPage() {
           </div>
         </motion.div>
 
+        {/* Active Filters Display */}
+        {(filters.timeRange !== "24h" || filters.dataType !== "all" || !filters.showTrends) && (
+          <motion.div
+            initial={{ opacity: 0, y: -10 }}
+            animate={{ opacity: 1, y: 0 }}
+            className="mb-4 flex flex-wrap gap-2"
+          >
+            {filters.timeRange !== "24h" && (
+              <span className="px-3 py-1 bg-orange-500/20 text-orange-400 rounded-full text-sm">
+                {filters.timeRange === "1h" && (isRussian ? "1 час" : "1 Hour")}
+                {filters.timeRange === "7d" && (isRussian ? "7 дней" : "7 Days")}
+                {filters.timeRange === "30d" && (isRussian ? "30 дней" : "30 Days")}
+              </span>
+            )}
+            {filters.dataType !== "all" && (
+              <span className="px-3 py-1 bg-blue-500/20 text-blue-400 rounded-full text-sm">
+                {filters.dataType === "temperature" && (isRussian ? "Температура" : "Temperature")}
+                {filters.dataType === "ice" && (isRussian ? "Лед" : "Ice")}
+                {filters.dataType === "pollution" && (isRussian ? "Загрязнение" : "Pollution")}
+                {filters.dataType === "wildlife" && (isRussian ? "Дикая природа" : "Wildlife")}
+              </span>
+            )}
+            {!filters.showTrends && (
+              <span className="px-3 py-1 bg-neutral-500/20 text-neutral-400 rounded-full text-sm">
+                {isRussian ? "Без трендов" : "No Trends"}
+              </span>
+            )}
+          </motion.div>
+        )}
+
         {/* Quick stats */}
         <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
           {[
-            { 
-              icon: Thermometer, 
-              label: isRussian ? "Температура" : "Temperature", 
+            {
+              id: "temperature",
+              icon: Thermometer,
+              label: isRussian ? "Температура" : "Temperature",
               value: `${realTimeData.temperature.toFixed(1)}°C`,
               change: "-0.3°C",
               trend: "down",
               color: "#3b82f6"
             },
-            { 
-              icon: Waves, 
-              label: isRussian ? "Ледовый покров" : "Ice Coverage", 
+            {
+              id: "ice",
+              icon: Waves,
+              label: isRussian ? "Ледовый покров" : "Ice Coverage",
               value: `${realTimeData.icecover.toFixed(1)}%`,
               change: "+1.2%",
               trend: "up",
               color: "#06b6d4"
             },
-            { 
-              icon: AlertTriangle, 
-              label: isRussian ? "Загрязнение" : "Pollution", 
+            {
+              id: "pollution",
+              icon: AlertTriangle,
+              label: isRussian ? "Загрязнение" : "Pollution",
               value: realTimeData.pollution.toFixed(1),
               change: "-2.1",
               trend: "down",
               color: "#f97316"
             },
-            { 
-              icon: Activity, 
-              label: isRussian ? "Дикая природа" : "Wildlife", 
+            {
+              id: "wildlife",
+              icon: Activity,
+              label: isRussian ? "Дикая природа" : "Wildlife",
               value: realTimeData.wildlife,
               change: "+12",
               trend: "up",
               color: "#10b981"
             },
-          ].map((stat, i) => {
+          ].filter(stat => filters.dataType === "all" || stat.id === filters.dataType).map((stat, i) => {
             const Icon = stat.icon;
             const TrendIcon = stat.trend === "up" ? TrendingUp : TrendingDown;
             
@@ -294,10 +479,12 @@ export function DashboardPage() {
               >
                 <div className="flex items-start justify-between mb-4">
                   <Icon className="w-5 h-5" style={{ color: stat.color }} />
-                  <div className="flex items-center gap-1 text-xs">
-                    <TrendIcon className="w-3 h-3" style={{ color: stat.trend === "up" ? "#10b981" : "#3b82f6" }} />
-                    <span className="text-neutral-400">{stat.change}</span>
-                  </div>
+                  {filters.showTrends && (
+                    <div className="flex items-center gap-1 text-xs">
+                      <TrendIcon className="w-3 h-3" style={{ color: stat.trend === "up" ? "#10b981" : "#3b82f6" }} />
+                      <span className="text-neutral-400">{stat.change}</span>
+                    </div>
+                  )}
                 </div>
                 <motion.div 
                   className="text-2xl md:text-3xl mb-1"
