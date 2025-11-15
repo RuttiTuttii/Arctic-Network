@@ -7,21 +7,24 @@ interface GlassButtonProps {
   variant?: "primary" | "secondary";
   className?: string;
   type?: "button" | "submit";
+  disabled?: boolean;
 }
 
-export function GlassButton({ children, onClick, variant = "primary", className = "", type = "button" }: GlassButtonProps) {
+export function GlassButton({ children, onClick, variant = "primary", className = "", type = "button", disabled = false }: GlassButtonProps) {
   const isPrimary = variant === "primary";
 
   return (
     <motion.button
       type={type}
-      onClick={onClick}
-      whileHover={{ scale: 1.02 }}
-      whileTap={{ scale: 0.98 }}
+      onClick={disabled ? undefined : onClick}
+      disabled={disabled}
+      whileHover={disabled ? {} : { scale: 1.02 }}
+      whileTap={disabled ? {} : { scale: 0.98 }}
       className={`
         relative px-8 py-4 tracking-wider overflow-hidden
-        backdrop-blur-xl border border-white/20 
+        backdrop-blur-xl border border-white/20
         ${isPrimary ? "bg-white/10" : "bg-white/5"}
+        ${disabled ? "opacity-50 cursor-not-allowed" : ""}
         ${className}
       `}
       style={{

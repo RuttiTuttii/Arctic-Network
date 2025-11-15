@@ -1,5 +1,6 @@
 import { motion } from "motion/react";
 import { useState, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
 import { 
   TrendingUp, 
   TrendingDown, 
@@ -18,13 +19,12 @@ import {
   Sparkles
 } from "lucide-react";
 import { useLanguage } from "../contexts/LanguageContext";
-import { ChatPage } from "./ChatPage";
 
 export function DashboardPage() {
+  const navigate = useNavigate();
   const { t, language } = useLanguage();
   const isRussian = language === "ru";
   const [searchQuery, setSearchQuery] = useState("");
-  const [showChat, setShowChat] = useState(false);
 
   const [realTimeData, setRealTimeData] = useState({
     temperature: -15.3,
@@ -53,20 +53,6 @@ export function DashboardPage() {
 
     return () => clearInterval(interval);
   }, []);
-
-  if (showChat) {
-    return (
-      <ChatPage
-        onClose={() => setShowChat(false)}
-        satelliteData={{
-          temperature: realTimeData.temperature,
-          icecover: realTimeData.icecover,
-          pollution: realTimeData.pollution,
-          wildlife: realTimeData.wildlife,
-        }}
-      />
-    );
-  }
 
   return (
     <div className="min-h-screen bg-black text-white">
@@ -117,7 +103,7 @@ export function DashboardPage() {
                 <motion.button
                   whileHover={{ scale: 1.1 }}
                   whileTap={{ scale: 0.9 }}
-                  onClick={() => setShowChat(true)}
+                  onClick={() => navigate("/chat")}
                   className="relative p-2 hover:bg-white/5 rounded-lg transition-colors group"
                   title={isRussian ? "AI Ассистент" : "AI Assistant"}
                 >
@@ -177,7 +163,7 @@ export function DashboardPage() {
           animate={{ opacity: 1, y: 0 }}
           className="mb-8 backdrop-blur-xl bg-gradient-to-r from-orange-500/10 to-purple-500/10 border border-orange-500/20 p-6 rounded-3xl cursor-pointer"
           whileHover={{ scale: 1.01 }}
-          onClick={() => setShowChat(true)}
+          onClick={() => navigate("/chat")}
         >
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-4">
@@ -208,6 +194,7 @@ export function DashboardPage() {
             <motion.button
               whileHover={{ scale: 1.05 }}
               whileTap={{ scale: 0.95 }}
+              onClick={() => navigate("/chat")}
               className="px-6 py-3 bg-orange-500 hover:bg-orange-600 rounded-xl flex items-center gap-2 transition-colors"
             >
               <MessageSquare className="w-5 h-5" />

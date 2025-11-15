@@ -1,13 +1,11 @@
 import { motion } from "motion/react";
+import { useNavigate } from "react-router-dom";
 import { SatelliteNetwork } from "./SatelliteNetwork";
 import { GlassButton } from "./GlassButton";
 import { useLanguage } from "../contexts/LanguageContext";
 
-interface HeroProps {
-  onNavigate: (page: string) => void;
-}
-
-export function Hero({ onNavigate }: HeroProps) {
+export function Hero() {
+  const navigate = useNavigate();
   const { t } = useLanguage();
 
   return (
@@ -35,7 +33,7 @@ export function Hero({ onNavigate }: HeroProps) {
           animate={{ opacity: 1, x: 0 }}
           transition={{ duration: 0.6 }}
           className="flex items-center gap-2 cursor-pointer"
-          onClick={() => onNavigate("home")}
+          onClick={() => navigate("/")}
         >
           <div className="grid grid-cols-3 gap-1">
             {[...Array(9)].map((_, i) => (
@@ -109,10 +107,10 @@ export function Hero({ onNavigate }: HeroProps) {
             transition={{ duration: 0.6, delay: 1.3 }}
             className="flex flex-wrap gap-4"
           >
-            <GlassButton variant="primary" onClick={() => onNavigate("dashboard")}>
+            <GlassButton variant="primary" onClick={() => navigate("/dashboard")}>
               {t("exploreDashboard")}
             </GlassButton>
-            <GlassButton variant="secondary" onClick={() => onNavigate("profile")}>
+            <GlassButton variant="secondary" onClick={() => navigate("/register")}>
               {t("learnMore")}
             </GlassButton>
           </motion.div>

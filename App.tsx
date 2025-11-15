@@ -1,3 +1,4 @@
+import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 import { Hero } from "./components/Hero";
 import { Features } from "./components/Features";
 import { DashboardPreview } from "./components/DashboardPreview";
@@ -8,46 +9,65 @@ import { GlassMenu } from "./components/GlassMenu";
 import { RegisterPage } from "./pages/RegisterPage";
 import { DashboardPage } from "./pages/DashboardPage";
 import { PricingPage } from "./pages/PricingPage";
+import { LoginPage } from "./pages/LoginPage";
+import { ChatPage } from "./pages/ChatPage";
+import { ProtectedRoute } from "./components/ProtectedRoute";
+import { ScrollToTop } from "./components/ScrollToTop";
 import { LanguageProvider } from "./contexts/LanguageContext";
+import { AuthProvider } from "./contexts/AuthContext";
 import { useState } from "react";
 
-export default function App() {
-  const [isLoading, setIsLoading] = useState(true);
-  const [currentPage, setCurrentPage] = useState("home");
+function HomePage() {
+  return (
+    <>
+      <Hero />
+      <NetworkSection />
+      <Features />
+      <DashboardPreview />
+      <Footer />
+    </>
+  );
+}
 
-  const renderPage = () => {
-    switch (currentPage) {
-      case "profile":
-        return <RegisterPage onNavigate={setCurrentPage} />;
-      case "explore":
-      case "dashboard":
-        return <DashboardPage />;
-      case "inbox":
-        return <PricingPage onNavigate={setCurrentPage} />;
-      default:
-        return (
-          <>
-            <Hero onNavigate={setCurrentPage} />
-            <NetworkSection />
-            <Features />
-            <DashboardPreview onNavigate={setCurrentPage} />
-            <Footer />
-          </>
-        );
-    }
-  };
+function AppContent() {
+  const [isLoading, setIsLoading] = useState(true);
 
   return (
-    <LanguageProvider>
-      <div className="bg-black min-h-screen text-white">
-        {isLoading && <Preloader onComplete={() => setIsLoading(false)} />}
-        {!isLoading && (
-          <>
-            {renderPage()}
-            <GlassMenu onNavigate={setCurrentPage} currentPage={currentPage} />
-          </>
-        )}
-      </div>
-    </LanguageProvider>
+    <div className="bg-black min-h-screen text-white">
+      {isLoading && <Preloader onComplete={() => setIsLoading(false)} />}
+      {!isLoading && (
+        <>
+          <ScrollToTop />
+          <Routes>
+            <Route path="/" element={<HomePage />} />
+            <Route path="/login" element={<LoginPage />} />
+            <Route path="/register" element={<RegisterPage />} />
+            <Route path="/pricing" element={<PricingPage />} />
+            <Route path="/chat" element={<ChatPage />} />
+            <Route
+              path="/dashboard"
+              element={
+                <ProtectedRoute>
+                  <DashboardPage />
+                </ProtectedRoute>
+              }
+            />
+          </Routes>
+          <GlassMenu />
+        </>
+      )}
+    </div>
+  );
+}
+
+export default function App() {
+  return (
+    <Router>
+      <AuthProvider>
+        <LanguageProvider>
+          <AppContent />
+        </LanguageProvider>
+      </AuthProvider>
+    </Router>
   );
 }

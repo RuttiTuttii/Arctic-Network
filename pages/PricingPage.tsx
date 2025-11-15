@@ -1,11 +1,12 @@
 import { motion, AnimatePresence } from "motion/react";
 import { useState } from "react";
-import { 
-  Check, 
-  Zap, 
-  Shield, 
-  Crown, 
-  CreditCard, 
+import { useNavigate } from "react-router-dom";
+import {
+  Check,
+  Zap,
+  Shield,
+  Crown,
+  CreditCard,
   Lock,
   Calendar,
   ArrowRight,
@@ -13,16 +14,19 @@ import {
 } from "lucide-react";
 import { useLanguage } from "../contexts/LanguageContext";
 
-interface PricingPageProps {
-  onNavigate: (page: string) => void;
-}
-
-export function PricingPage({ onNavigate }: PricingPageProps) {
+export function PricingPage() {
+  const navigate = useNavigate();
   const { language } = useLanguage();
   const isRussian = language === "ru";
   const [billingPeriod, setBillingPeriod] = useState<"monthly" | "yearly">("monthly");
   const [selectedPlan, setSelectedPlan] = useState<string | null>(null);
   const [showPaymentForm, setShowPaymentForm] = useState(false);
+  const [paymentData, setPaymentData] = useState({
+    cardNumber: "",
+    expiryDate: "",
+    cvc: "",
+    cardholderName: "",
+  });
 
   const plans = [
     {
@@ -411,6 +415,8 @@ export function PricingPage({ onNavigate }: PricingPageProps) {
                     <CreditCard className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-neutral-500" />
                     <input
                       type="text"
+                      value={paymentData.cardNumber}
+                      onChange={(e) => setPaymentData({ ...paymentData, cardNumber: e.target.value })}
                       placeholder="4242 4242 4242 4242"
                       className="w-full pl-12 pr-4 py-4 bg-white/5 border border-white/10 rounded-xl focus:border-orange-500 focus:outline-none transition-colors"
                       maxLength={19}
@@ -428,6 +434,8 @@ export function PricingPage({ onNavigate }: PricingPageProps) {
                       <Calendar className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-neutral-500" />
                       <input
                         type="text"
+                        value={paymentData.expiryDate}
+                        onChange={(e) => setPaymentData({ ...paymentData, expiryDate: e.target.value })}
                         placeholder="MM/YY"
                         className="w-full pl-12 pr-4 py-4 bg-white/5 border border-white/10 rounded-xl focus:border-orange-500 focus:outline-none transition-colors"
                         maxLength={5}
@@ -442,6 +450,8 @@ export function PricingPage({ onNavigate }: PricingPageProps) {
                       <Lock className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-neutral-500" />
                       <input
                         type="text"
+                        value={paymentData.cvc}
+                        onChange={(e) => setPaymentData({ ...paymentData, cvc: e.target.value })}
                         placeholder="123"
                         className="w-full pl-12 pr-4 py-4 bg-white/5 border border-white/10 rounded-xl focus:border-orange-500 focus:outline-none transition-colors"
                         maxLength={3}
@@ -457,6 +467,8 @@ export function PricingPage({ onNavigate }: PricingPageProps) {
                   </label>
                   <input
                     type="text"
+                    value={paymentData.cardholderName}
+                    onChange={(e) => setPaymentData({ ...paymentData, cardholderName: e.target.value })}
                     placeholder={isRussian ? "Иван Иванов" : "John Doe"}
                     className="w-full px-4 py-4 bg-white/5 border border-white/10 rounded-xl focus:border-orange-500 focus:outline-none transition-colors"
                   />
@@ -480,8 +492,28 @@ export function PricingPage({ onNavigate }: PricingPageProps) {
                   whileTap={{ scale: 0.98 }}
                   onClick={(e) => {
                     e.preventDefault();
+                    // Save payment data (in real app, this would go to backend)
+                    const paymentRecord = {
+                      user_id: 1, // Would be current user ID
+                      subscription_type: selectedPlan,
+                      amount: selectedPlanData.price[billingPeriod],
+                      currency: 'USD',
+                      payment_method: 'card',
+                      card_last_four: paymentData.cardNumber.slice(-4),
+                      card_brand: 'visa', // Would detect from card number
+                      transaction_id: `txn_${Date.now()}`,
+                      status: 'completed',
+                      billing_period: billingPeriod,
+                      paid_at: new Date().toISOString(),
+                    };
+
+                    // Save to localStorage for demo
+                    const existingPayments = JSON.parse(localStorage.getItem('arctic_payments') || '[]');
+                    existingPayments.push(paymentRecord);
+                    localStorage.setItem('arctic_payments', JSON.stringify(existingPayments));
+
                     setShowPaymentForm(false);
-                    onNavigate("dashboard");
+                    navigate("/dashboard");
                   }}
                 >
                   {isRussian ? "ОПЛАТИТЬ" : "PAY"} ${selectedPlanData.price[billingPeriod]}

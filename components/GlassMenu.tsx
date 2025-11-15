@@ -1,6 +1,7 @@
-import { motion, useMotionValue, useTransform, PanInfo, animate } from "motion/react";
+import { motion, useMotionValue, PanInfo, animate } from "motion/react";
 import { Home, Inbox, Telescope, User, Globe } from "lucide-react";
-import { useState, useRef, useEffect } from "react";
+import { useRef, useEffect, useState } from "react";
+import { useNavigate, useLocation } from "react-router-dom";
 import { useLanguage } from "../contexts/LanguageContext";
 
 interface MenuItem {
@@ -8,29 +9,53 @@ interface MenuItem {
   label: string;
   labelRu: string;
   id: string;
+  path: string;
 }
 
 const menuItems: MenuItem[] = [
-  { icon: Home, label: "Home", labelRu: "Главная", id: "home" },
-  { icon: Inbox, label: "Pricing", labelRu: "Цены", id: "inbox" },
-  { icon: Telescope, label: "Explore", labelRu: "Обзор", id: "explore" },
-  { icon: User, label: "Profile", labelRu: "Профиль", id: "profile" },
+  { icon: Home, label: "Home", labelRu: "Главная", id: "home", path: "/" },
+  { icon: Inbox, label: "Pricing", labelRu: "Цены", id: "inbox", path: "/pricing" },
+  { icon: Telescope, label: "Explore", labelRu: "Обзор", id: "explore", path: "/dashboard" },
+  { icon: User, label: "Profile", labelRu: "Профиль", id: "profile", path: "/register" },
 ];
 
-interface GlassMenuProps {
-  onNavigate?: (page: string) => void;
-  currentPage?: string;
-}
-
-export function GlassMenu({ onNavigate, currentPage = "home" }: GlassMenuProps) {
-  const [activeItem, setActiveItem] = useState(currentPage);
+export function GlassMenu() {
+  const navigate = useNavigate();
+  const location = useLocation();
   const { language, setLanguage } = useLanguage();
   const constraintsRef = useRef<HTMLDivElement>(null);
-  
+  const [isVisible, setIsVisible] = useState(true);
+  const hideTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+  const activeItem = menuItems.find(item => item.path === location.pathname)?.id || "home";
   const activeIndex = menuItems.findIndex(item => item.id === activeItem);
   const itemWidth = 80; // Width of each menu item
   
   const x = useMotionValue(activeIndex * itemWidth);
+
+  // Handle show/hide with cursor
+  const handleMouseEnter = () => {
+    if (hideTimeoutRef.current) {
+      clearTimeout(hideTimeoutRef.current);
+      hideTimeoutRef.current = null;
+    }
+    setIsVisible(true);
+  };
+
+  const handleMouseLeave = () => {
+    hideTimeoutRef.current = setTimeout(() => {
+      setIsVisible(false);
+    }, 3000);
+  };
+
+  // Cleanup timeout on unmount
+  useEffect(() => {
+    return () => {
+      if (hideTimeoutRef.current) {
+        clearTimeout(hideTimeoutRef.current);
+      }
+    };
+  }, []);
 
   useEffect(() => {
     const newIndex = menuItems.findIndex(item => item.id === activeItem);
@@ -41,33 +66,43 @@ export function GlassMenu({ onNavigate, currentPage = "home" }: GlassMenuProps) 
     });
   }, [activeItem, x]);
 
-  const handleDragEnd = (event: MouseEvent | TouchEvent | PointerEvent, info: PanInfo) => {
-    const offset = info.offset.x;
+  const handleDragEnd = (_event: MouseEvent | TouchEvent | PointerEvent, info: PanInfo) => {
     const velocity = info.velocity.x;
-    
+
     let newIndex = Math.round(x.get() / itemWidth);
-    
+
     // Add velocity-based adjustment
     if (Math.abs(velocity) > 500) {
       newIndex += velocity > 0 ? 1 : -1;
     }
-    
+
     // Clamp to valid range
     newIndex = Math.max(0, Math.min(menuItems.length - 1, newIndex));
-    
+
     const newItem = menuItems[newIndex];
-    setActiveItem(newItem.id);
-    onNavigate?.(newItem.id);
+    navigate(newItem.path);
   };
 
   const handleItemClick = (itemId: string) => {
-    setActiveItem(itemId);
-    onNavigate?.(itemId);
+    const item = menuItems.find(item => item.id === itemId);
+    if (item) {
+      navigate(item.path);
+    }
   };
 
   return (
     <div className="fixed bottom-8 left-1/2 -translate-x-1/2 z-50">
-      <div className="relative">
+      <motion.div
+        className="relative"
+        onMouseEnter={handleMouseEnter}
+        onMouseLeave={handleMouseLeave}
+        animate={{ 
+          opacity: isVisible ? 1 : 0.02, 
+          y: isVisible ? 0 : 80,
+        }}
+        transition={{ duration: 0.7, type: "spring", stiffness: 200, damping: 25 }}
+        style={{ pointerEvents: "auto" } as any}
+      >
         <motion.div
           className="relative backdrop-blur-3xl bg-white/10 border border-white/20 pl-6 pr-4 py-4"
           style={{
@@ -114,7 +149,7 @@ export function GlassMenu({ onNavigate, currentPage = "home" }: GlassMenuProps) 
 
               {/* Menu items */}
               <div className="relative flex items-center">
-                {menuItems.map((item, index) => {
+                {menuItems.map((item) => {
                   const Icon = item.icon;
                   const isActive = activeItem === item.id;
                   const label = language === "ru" ? item.labelRu : item.label;
@@ -186,7 +221,7 @@ export function GlassMenu({ onNavigate, currentPage = "home" }: GlassMenuProps) 
             </div>
           </div>
         </motion.div>
-      </div>
+      </motion.div>
     </div>
   );
 }

@@ -1,30 +1,35 @@
 import { motion } from "motion/react";
 import { useState } from "react";
-import { Mail, Lock, User, ArrowRight, Eye, EyeOff } from "lucide-react";
-import { GlassButton } from "../components/GlassButton";
+import { useNavigate } from "react-router-dom";
+import { Mail, Lock, User, ArrowRight, Eye, EyeOff, CreditCard, LogOut } from "lucide-react";
 import { useLanguage } from "../contexts/LanguageContext";
+import { useAuth } from "../contexts/AuthContext";
 
-interface RegisterPageProps {
-  onNavigate: (page: string) => void;
-}
-
-export function RegisterPage({ onNavigate }: RegisterPageProps) {
+export function RegisterPage() {
+  const navigate = useNavigate();
+  const { user, logout } = useAuth();
   const [showPassword, setShowPassword] = useState(false);
   const [formData, setFormData] = useState({
-    name: "",
+    username: "",
     email: "",
     password: "",
-    organization: "",
+    company_name: "",
   });
   const { language } = useLanguage();
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     // Handle registration logic
-    onNavigate("dashboard");
+    navigate("/dashboard");
+  };
+
+  const handleLogout = () => {
+    logout();
+    navigate("/");
   };
 
   const isRussian = language === "ru";
+  const isAuthenticated = !!user;
 
   return (
     <div className="min-h-screen bg-black text-white overflow-hidden relative">
@@ -88,19 +93,34 @@ export function RegisterPage({ onNavigate }: RegisterPageProps) {
             </div>
 
             <h1 className="text-5xl lg:text-6xl mb-6 leading-tight">
-              {isRussian ? "Присоединяйтесь к" : "Join the"}
+              {isAuthenticated
+                ? (isRussian ? "Ваш аккаунт" : "Your Account")
+                : (isRussian ? "Присоединяйтесь к" : "Join the")
+              }
               <br />
               <span className="text-orange-500">
-                {isRussian ? "будущему" : "Future"}
+                {isAuthenticated
+                  ? (isRussian ? "ARCTIC NETWORK" : "ARCTIC NETWORK")
+                  : (isRussian ? "будущему" : "Future")
+                }
               </span>
-              <br />
-              {isRussian ? "мониторинга" : "of Monitoring"}
+              {!isAuthenticated && (
+                <>
+                  <br />
+                  {isRussian ? "мониторинга" : "of Monitoring"}
+                </>
+              )}
             </h1>
 
             <p className="text-xl text-neutral-400 mb-12 leading-relaxed max-w-lg">
-              {isRussian
-                ? "Получите доступ к передовой спутниковой сети для мониторинга арктической экосистемы в режиме реального времени."
-                : "Access cutting-edge satellite networks for real-time Arctic ecosystem monitoring."}
+              {isAuthenticated
+                ? (isRussian
+                    ? "Управляйте настройками аккаунта и подпиской"
+                    : "Manage your account settings and subscription")
+                : (isRussian
+                    ? "Получите доступ к передовой спутниковой сети для мониторинга арктической экосистемы в режиме реального времени."
+                    : "Access cutting-edge satellite networks for real-time Arctic ecosystem monitoring.")
+              }
             </p>
 
             {/* Stats */}
@@ -141,30 +161,121 @@ export function RegisterPage({ onNavigate }: RegisterPageProps) {
               }}
             >
               <h2 className="text-3xl mb-2">
-                {isRussian ? "Создать аккаунт" : "Create Account"}
+                {isAuthenticated
+                  ? (isRussian ? "Информация об аккаунте" : "Account Information")
+                  : (isRussian ? "Создать аккаунт" : "Create Account")
+                }
               </h2>
               <p className="text-neutral-400 mb-8">
-                {isRussian
-                  ? "Начните мониторинг сегодня"
-                  : "Start monitoring today"}
+                {isAuthenticated
+                  ? (isRussian ? "Управление аккаунтом и подпиской" : "Account and subscription management")
+                  : (isRussian ? "Начните мониторинг сегодня" : "Start monitoring today")
+                }
               </p>
 
-              <form onSubmit={handleSubmit} className="space-y-6">
-                {/* Name input */}
+              {isAuthenticated ? (
+                <div className="space-y-6">
+                  {/* Account Info */}
+                  <div className="p-6 bg-white/5 border border-white/10 rounded-xl">
+                    <h3 className="text-xl mb-4 flex items-center gap-2">
+                      <User className="w-5 h-5 text-orange-500" />
+                      {isRussian ? "Профиль пользователя" : "User Profile"}
+                    </h3>
+                    <div className="space-y-3 text-sm">
+                      <div className="flex justify-between">
+                        <span className="text-neutral-400">{isRussian ? "Имя пользователя:" : "Username:"}</span>
+                        <span>{user.username}</span>
+                      </div>
+                      <div className="flex justify-between">
+                        <span className="text-neutral-400">{isRussian ? "Email:" : "Email:"}</span>
+                        <span>{user.email}</span>
+                      </div>
+                      <div className="flex justify-between">
+                        <span className="text-neutral-400">{isRussian ? "Компания:" : "Company:"}</span>
+                        <span>{user.company_name || (isRussian ? "Не указана" : "Not specified")}</span>
+                      </div>
+                      <div className="flex justify-between">
+                        <span className="text-neutral-400">{isRussian ? "Роль:" : "Role:"}</span>
+                        <span className="capitalize">{user.role}</span>
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Subscription Info */}
+                  <div className="p-6 bg-white/5 border border-white/10 rounded-xl">
+                    <h3 className="text-xl mb-4 flex items-center gap-2">
+                      <CreditCard className="w-5 h-5 text-orange-500" />
+                      {isRussian ? "Подписка" : "Subscription"}
+                    </h3>
+                    <div className="space-y-3 text-sm">
+                      <div className="flex justify-between">
+                        <span className="text-neutral-400">{isRussian ? "Тип подписки:" : "Subscription Type:"}</span>
+                        <span className="capitalize text-orange-500">{user.subscription_type}</span>
+                      </div>
+                      <div className="flex justify-between">
+                        <span className="text-neutral-400">{isRussian ? "Статус:" : "Status:"}</span>
+                        <span className={`capitalize ${user.subscription_status === 'active' ? 'text-green-500' : 'text-red-500'}`}>
+                          {user.subscription_status}
+                        </span>
+                      </div>
+                      {user.subscription_expires_at && (
+                        <div className="flex justify-between">
+                          <span className="text-neutral-400">{isRussian ? "Истекает:" : "Expires:"}</span>
+                          <span>{new Date(user.subscription_expires_at).toLocaleDateString()}</span>
+                        </div>
+                      )}
+                    </div>
+                  </div>
+
+                  {/* Payment Info */}
+                  <div className="p-6 bg-white/5 border border-white/10 rounded-xl">
+                    <h3 className="text-xl mb-4 flex items-center gap-2">
+                      <CreditCard className="w-5 h-5 text-orange-500" />
+                      {isRussian ? "Платежная информация" : "Payment Information"}
+                    </h3>
+                    <div className="space-y-3 text-sm">
+                      <div className="flex justify-between items-center">
+                        <span className="text-neutral-400">{isRussian ? "Карта:" : "Card:"}</span>
+                        <div className="flex items-center gap-2">
+                          <span>•••• •••• •••• 4242</span>
+                          <span className="text-xs text-neutral-500">(Visa)</span>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Logout Button */}
+                  <motion.button
+                    onClick={handleLogout}
+                    className="w-full px-8 py-4 tracking-wider backdrop-blur-xl border border-red-500/20 bg-red-500/10 hover:bg-red-500/20 text-red-400 hover:text-red-300 transition-all flex items-center justify-center gap-3 group rounded-xl"
+                    whileHover={{ scale: 1.02 }}
+                    whileTap={{ scale: 0.98 }}
+                  >
+                    <LogOut className="w-5 h-5" />
+                    {isRussian ? "ВЫЙТИ ИЗ АККАУНТА" : "LOGOUT"}
+                  </motion.button>
+                </div>
+              ) : (
+                <>
+                <form onSubmit={handleSubmit} className="space-y-6">
+                {/* Username input */}
                 <div>
                   <label className="block text-sm tracking-wider mb-2 text-neutral-400">
-                    {isRussian ? "ПОЛНОЕ ИМЯ" : "FULL NAME"}
+                    {isRussian ? "ИМЯ ПОЛЬЗОВАТЕЛЯ" : "USERNAME"}
                   </label>
                   <div className="relative">
                     <User className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-neutral-500" />
                     <input
                       type="text"
-                      value={formData.name}
-                      onChange={(e) => setFormData({ ...formData, name: e.target.value })}
+                      value={formData.username}
+                      onChange={(e) => setFormData({ ...formData, username: e.target.value })}
                       className="w-full pl-12 pr-4 py-4 bg-white/5 border border-white/10 backdrop-blur-xl focus:border-orange-500 focus:outline-none transition-colors"
                       style={{ borderRadius: "16px" }}
-                      placeholder={isRussian ? "Введите имя" : "Enter your name"}
+                      placeholder={isRussian ? "Введите имя пользователя" : "Enter username"}
                       required
+                      minLength={3}
+                      pattern="[a-zA-Z0-9_]+"
+                      title={isRussian ? "Только буквы, цифры и подчеркивание" : "Only letters, numbers, and underscores"}
                     />
                   </div>
                 </div>
@@ -188,16 +299,16 @@ export function RegisterPage({ onNavigate }: RegisterPageProps) {
                   </div>
                 </div>
 
-                {/* Organization input */}
+                {/* Company input */}
                 <div>
                   <label className="block text-sm tracking-wider mb-2 text-neutral-400">
-                    {isRussian ? "ОРГАНИЗАЦИЯ" : "ORGANIZATION"}
+                    {isRussian ? "КОМПАНИЯ" : "COMPANY"}
                   </label>
                   <div className="relative">
                     <input
                       type="text"
-                      value={formData.organization}
-                      onChange={(e) => setFormData({ ...formData, organization: e.target.value })}
+                      value={formData.company_name}
+                      onChange={(e) => setFormData({ ...formData, company_name: e.target.value })}
                       className="w-full px-4 py-4 bg-white/5 border border-white/10 backdrop-blur-xl focus:border-orange-500 focus:outline-none transition-colors"
                       style={{ borderRadius: "16px" }}
                       placeholder={isRussian ? "Название компании" : "Company name"}
@@ -261,20 +372,22 @@ export function RegisterPage({ onNavigate }: RegisterPageProps) {
                   {isRussian ? "СОЗДАТЬ АККАУНТ" : "CREATE ACCOUNT"}
                   <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
                 </motion.button>
-              </form>
+                </form>
 
-              <div className="mt-8 text-center text-sm text-neutral-400">
-                {isRussian ? "Уже есть аккаунт?" : "Already have an account?"}{" "}
-                <button
-                  onClick={() => onNavigate("home")}
-                  className="text-orange-500 hover:text-orange-400 transition-colors"
-                >
-                  {isRussian ? "Войти" : "Sign in"}
-                </button>
-              </div>
+                <div className="mt-8 text-center text-sm text-neutral-400">
+                  {isRussian ? "Уже есть аккаунт?" : "Already have an account?"}{" "}
+                  <button
+                    onClick={() => navigate("/")}
+                    className="text-orange-500 hover:text-orange-400 transition-colors"
+                  >
+                    {isRussian ? "Войти" : "Sign in"}
+                  </button>
+                </div>
+                </>
+              )}
             </div>
-          </motion.div>
-        </div>
+            </motion.div>
+          </div>
       </div>
     </div>
   );

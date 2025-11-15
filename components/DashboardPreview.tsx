@@ -1,14 +1,12 @@
 import { motion, useScroll, useTransform } from "motion/react";
 import { useRef, useState, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
 import { TrendingUp, TrendingDown, AlertTriangle } from "lucide-react";
 import { GlassButton } from "./GlassButton";
 import { useLanguage } from "../contexts/LanguageContext";
 
-interface DashboardPreviewProps {
-  onNavigate: (page: string) => void;
-}
-
-export function DashboardPreview({ onNavigate }: DashboardPreviewProps) {
+export function DashboardPreview() {
+  const navigate = useNavigate();
   const ref = useRef<HTMLDivElement>(null);
   const { scrollYProgress } = useScroll({
     target: ref,
@@ -67,7 +65,7 @@ export function DashboardPreview({ onNavigate }: DashboardPreviewProps) {
             transition={{ duration: 1 }}
             viewport={{ once: true }}
             className="relative cursor-pointer"
-            onClick={() => onNavigate("dashboard")}
+            onClick={() => navigate("/dashboard")}
             whileHover={{ scale: 1.02 }}
           >
             {/* Glow effect */}
@@ -250,7 +248,7 @@ export function DashboardPreview({ onNavigate }: DashboardPreviewProps) {
             viewport={{ once: true }}
             className="text-center mt-16"
           >
-            <GlassButton variant="primary" onClick={() => onNavigate("profile")}>
+            <GlassButton variant="primary" onClick={() => navigate("/register")}>
               {t("requestDemo")}
             </GlassButton>
           </motion.div>
