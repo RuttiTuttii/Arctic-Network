@@ -50,9 +50,8 @@ export function Footer() {
             </p>
             <div className="flex gap-4">
               {[
-                { name: "Twitter", url: "https://twitter.com" },
-                { name: "LinkedIn", url: "https://linkedin.com" },
-                { name: "GitHub", url: "https://github.com" }
+                { name: "Twitter", url: "https:glutinosa.t.me" },
+                { name: "GitHub", url: "https://github.com/ruttituttii" }
               ].map((social, i) => (
                 <motion.a
                   key={i}

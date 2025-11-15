@@ -16,15 +16,18 @@ import {
   Filter,
   Search,
   MessageSquare,
-  Sparkles
+  Sparkles,
+  Video
 } from "lucide-react";
 import { useLanguage } from "../contexts/LanguageContext";
+import { SatelliteRecordings } from "../components/SatelliteRecordings";
 
 export function DashboardPage() {
   const navigate = useNavigate();
-  const { t, language } = useLanguage();
+  const { language } = useLanguage();
   const isRussian = language === "ru";
   const [searchQuery, setSearchQuery] = useState("");
+  const [activeTab, setActiveTab] = useState<"metrics" | "recordings">("metrics");
 
   const [realTimeData, setRealTimeData] = useState({
     temperature: -15.3,
@@ -157,6 +160,43 @@ export function DashboardPage() {
       </header>
 
       <div className="container mx-auto px-6 py-8 pb-32">
+        {/* Tabs */}
+        <div className="flex gap-4 mb-8 border-b border-white/10">
+          <motion.button
+            onClick={() => setActiveTab("metrics")}
+            className={`px-4 py-3 flex items-center gap-2 border-b-2 transition-colors ${
+              activeTab === "metrics"
+                ? "border-orange-500 text-orange-500"
+                : "border-transparent text-neutral-400 hover:text-white"
+            }`}
+            whileHover={{ scale: 1.05 }}
+            whileTap={{ scale: 0.95 }}
+          >
+            <Activity className="w-5 h-5" />
+            <span className="font-semibold">
+              {isRussian ? "Метрики" : "Metrics"}
+            </span>
+          </motion.button>
+
+          <motion.button
+            onClick={() => setActiveTab("recordings")}
+            className={`px-4 py-3 flex items-center gap-2 border-b-2 transition-colors ${
+              activeTab === "recordings"
+                ? "border-orange-500 text-orange-500"
+                : "border-transparent text-neutral-400 hover:text-white"
+            }`}
+            whileHover={{ scale: 1.05 }}
+            whileTap={{ scale: 0.95 }}
+          >
+            <Video className="w-5 h-5" />
+            <span className="font-semibold">
+              {isRussian ? "Записи со спутников" : "Satellite Recordings"}
+            </span>
+          </motion.button>
+        </div>
+
+        {activeTab === "metrics" ? (
+          <>
         {/* AI Assistant CTA Banner */}
         <motion.div
           initial={{ opacity: 0, y: -20 }}
@@ -445,6 +485,10 @@ export function DashboardPage() {
             ))}
           </div>
         </div>
+        </>
+        ) : (
+          <SatelliteRecordings />
+        )}
       </div>
     </div>
   );

@@ -1,9 +1,9 @@
 import { motion, AnimatePresence } from "motion/react";
 import { useState, useRef, useEffect } from "react";
-import { 
-  Send, 
-  Bot, 
-  User as UserIcon, 
+import {
+  Send,
+  Bot,
+  User as UserIcon,
   Sparkles,
   X,
   Mic,
@@ -12,9 +12,14 @@ import {
   TrendingUp,
   AlertTriangle,
   Thermometer,
-  Waves
+  Waves,
+  Plus,
+  MessageSquare,
+  Settings
 } from "lucide-react";
 import { useLanguage } from "../contexts/LanguageContext";
+import { useGeminiAI } from "../hooks/useGeminiAI";
+import { useDashboardData } from "../hooks/useDashboard";
 
 interface Message {
   id: string;
@@ -22,6 +27,14 @@ interface Message {
   content: string;
   timestamp: Date;
   isStreaming?: boolean;
+}
+
+interface ChatSession {
+  session_id: string;
+  title: string;
+  created_at: string;
+  updated_at: string;
+  message_count: number;
 }
 
 interface ChatPageProps {
@@ -37,18 +50,14 @@ interface ChatPageProps {
 export function ChatPage({ onClose, satelliteData }: ChatPageProps) {
   const { language } = useLanguage();
   const isRussian = language === "ru";
-  const [messages, setMessages] = useState<Message[]>([
-    {
-      id: "1",
-      role: "assistant",
-      content: isRussian 
-        ? "Здравствуйте! Я AI-ассистент Arctic Network. Я помогу вам проанализировать данные со спутников и датчиков. Задайте мне любой вопрос о состоянии арктической экосистемы."
-        : "Hello! I'm the Arctic Network AI assistant. I'll help you analyze satellite and sensor data. Ask me anything about the Arctic ecosystem's current state.",
-      timestamp: new Date(),
-    },
-  ]);
+  const { generateResponse, isLoading: aiLoading } = useGeminiAI();
+  const { dashboardData, satellites } = useDashboardData();
+  const [messages, setMessages] = useState<Message[]>([]);
   const [input, setInput] = useState("");
   const [isThinking, setIsThinking] = useState(false);
+  const [isLoadingHistory, setIsLoadingHistory] = useState(true);
+  const [sessions, setSessions] = useState<ChatSession[]>([]);
+  const [currentSessionId, setCurrentSessionId] = useState<string>('default');
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLTextAreaElement>(null);
 
@@ -60,48 +69,141 @@ export function ChatPage({ onClose, satelliteData }: ChatPageProps) {
     scrollToBottom();
   }, [messages]);
 
-  const generateAIResponse = (userMessage: string): string => {
-    const lowerMessage = userMessage.toLowerCase();
-    
-    if (lowerMessage.includes("temperature") || lowerMessage.includes("температур")) {
-      return isRussian
-        ? `Анализирую данные о температуре... Текущая температура в Арктике составляет ${satelliteData?.temperature.toFixed(1)}°C. Это на 0.3°C ниже, чем вчера. Спутники ARCTIC-1 и POLAR-2 отслеживают тепловые аномалии. В последние 24 часа наблюдается стабильное снижение температуры в северном секторе.`
-        : `Analyzing temperature data... Current Arctic temperature is ${satelliteData?.temperature.toFixed(1)}°C. This is 0.3°C lower than yesterday. Satellites ARCTIC-1 and POLAR-2 are tracking thermal anomalies. Over the past 24 hours, we've observed a steady temperature decrease in the northern sector.`;
-    }
-    
-    if (lowerMessage.includes("ice") || lowerMessage.includes("лед")) {
-      return isRussian
-        ? `Ледовый покров сейчас составляет ${satelliteData?.icecover.toFixed(1)}%. Это положительная тенденция - увеличение на 1.2% за последнюю неделю. Спутниковые снимки показывают уплотнение льда в восточном секторе. CLIMATE-3 фиксирует стабильную динамику.`
-        : `Ice coverage is currently at ${satelliteData?.icecover.toFixed(1)}%. This is a positive trend - an increase of 1.2% over the past week. Satellite imagery shows ice consolidation in the eastern sector. CLIMATE-3 is recording stable dynamics.`;
-    }
-    
-    if (lowerMessage.includes("pollution") || lowerMessage.includes("загрязнен")) {
-      return isRussian
-        ? `Индекс загрязнения: ${satelliteData?.pollution.toFixed(1)}. Буи GAMMA и DELTA сообщают о незначительном снижении уровня загрязнения. Основные источники: судоходные маршруты и промышленные зоны. Рекомендую обратить внимание на северо-западный сектор.`
-        : `Pollution index: ${satelliteData?.pollution.toFixed(1)}. Buoys GAMMA and DELTA report a slight decrease in pollution levels. Main sources: shipping routes and industrial zones. I recommend focusing on the northwest sector.`;
-    }
-    
-    if (lowerMessage.includes("wildlife") || lowerMessage.includes("животн") || lowerMessage.includes("фауна")) {
-      return isRussian
-        ? `Отслеживаем ${satelliteData?.wildlife} особей. Система обнаружила 12 новых сигналов за последний час. Миграционные паттерны показывают движение на юг. Популяция белых медведей стабильна. MONITOR-4 фиксирует повышенную активность морских млекопитающих.`
-        : `Tracking ${satelliteData?.wildlife} specimens. The system detected 12 new signals in the past hour. Migration patterns show southward movement. Polar bear population is stable. MONITOR-4 is recording increased marine mammal activity.`;
-    }
-    
-    if (lowerMessage.includes("satellite") || lowerMessage.includes("спутник")) {
-      return isRussian
-        ? `Все 47 спутников активны. ARCTIC-1, POLAR-2 и CLIMATE-3 работают в штатном режиме. MONITOR-4 находится на техническом обслуживании. Средний уровень сигнала: 95%. Следующая синхронизация данных через 2 часа.`
-        : `All 47 satellites are active. ARCTIC-1, POLAR-2, and CLIMATE-3 are operating normally. MONITOR-4 is under maintenance. Average signal level: 95%. Next data sync in 2 hours.`;
-    }
+  // Load sessions and chat history on component mount
+  useEffect(() => {
+    const initializeChat = async () => {
+      await loadSessions();
+      await loadChatHistory(currentSessionId);
+    };
 
-    if (lowerMessage.includes("predict") || lowerMessage.includes("прогноз")) {
-      return isRussian
-        ? `На основе анализа данных за последние 30 дней, прогнозирую: температура будет снижаться на 0.1-0.2°C в день, ледовый покров увеличится до 89-91% к концу недели. Погодные модели показывают стабильные условия. Рекомендую продолжить мониторинг.`
-        : `Based on 30-day data analysis, I predict: temperature will decrease by 0.1-0.2°C daily, ice coverage will increase to 89-91% by week's end. Weather models show stable conditions. I recommend continued monitoring.`;
-    }
+    initializeChat();
+  }, [isRussian]);
 
-    return isRussian
-      ? "Интересный вопрос! Я анализирую все доступные данные со спутников. На основе текущих показателей: температура стабильна, ледовый покров в норме, система мониторинга работает оптимально. Если нужен детальный анализ конкретного параметра, уточните, пожалуйста."
-      : "Interesting question! I'm analyzing all available satellite data. Based on current readings: temperature is stable, ice coverage is normal, monitoring system is operating optimally. If you need detailed analysis of a specific parameter, please specify.";
+
+  const loadSessions = async () => {
+    try {
+      const BACKEND_URL = import.meta.env.VITE_API_URL || "http://localhost:3001";
+      const response = await fetch(`${BACKEND_URL}/api/chat/sessions`);
+      if (response.ok) {
+        const data = await response.json();
+        setSessions(data.sessions);
+      }
+    } catch (error) {
+      console.error('Error loading sessions:', error);
+    }
+  };
+
+  const createNewSession = async () => {
+    try {
+      const BACKEND_URL = import.meta.env.VITE_API_URL || "http://localhost:3001";
+      const title = `Чат ${new Date().toLocaleDateString()}`;
+      const response = await fetch(`${BACKEND_URL}/api/chat/sessions`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ title }),
+      });
+
+      if (response.ok) {
+        const data = await response.json();
+        setCurrentSessionId(data.sessionId);
+        setMessages([]);
+        setIsLoadingHistory(false);
+        await loadSessions();
+      }
+    } catch (error) {
+      console.error('Error creating session:', error);
+    }
+  };
+
+
+  const switchSession = async (sessionId: string) => {
+    setCurrentSessionId(sessionId);
+    setMessages([]);
+    setIsLoadingHistory(true);
+    await loadChatHistory(sessionId);
+  };
+
+  const loadChatHistory = async (sessionId: string) => {
+    try {
+      const BACKEND_URL = import.meta.env.VITE_API_URL || "http://localhost:3001";
+      const response = await fetch(`${BACKEND_URL}/api/chat/history?sessionId=${sessionId}`);
+
+      if (response.ok) {
+        const data = await response.json();
+        const historyMessages: Message[] = data.messages.map((msg: any) => ({
+          id: msg.id.toString(),
+          role: msg.role,
+          content: msg.content,
+          timestamp: new Date(msg.timestamp),
+        }));
+
+        setMessages(historyMessages);
+
+        // If no history and it's the default session, add initial greeting
+        if (historyMessages.length === 0 && sessionId === 'default') {
+          const initialMessage: Message = {
+            id: Date.now().toString(),
+            role: "assistant",
+            content: isRussian
+              ? "Привет! Я Ольга, всевидящее око Арктики! 🌟 Я ваш спутник-ассистент с душой и харизмой. Расскажите, что вас интересует в нашей прекрасной Арктике?"
+              : "Hi! I'm Olga, the all-seeing eye of the Arctic! 🌟 I'm your satellite assistant with soul and charisma. Tell me, what interests you about our beautiful Arctic?",
+            timestamp: new Date(),
+          };
+          setMessages([initialMessage]);
+        }
+      } else {
+        // If API fails, show initial greeting for default session
+        if (sessionId === 'default') {
+          const initialMessage: Message = {
+            id: Date.now().toString(),
+            role: "assistant",
+            content: isRussian
+              ? "Привет! Я Ольга, всевидящее око Арктики! 🌟 Я ваш спутник-ассистент с душой и харизмой. Расскажите, что вас интересует в нашей прекрасной Арктике?"
+              : "Hi! I'm Olga, the all-seeing eye of the Arctic! 🌟 I'm your satellite assistant with soul and charisma. Tell me, what interests you about our beautiful Arctic?",
+            timestamp: new Date(),
+          };
+          setMessages([initialMessage]);
+        }
+      }
+    } catch (error) {
+      console.error('Error loading chat history:', error);
+      // Show initial greeting on error for default session
+      if (sessionId === 'default') {
+        const initialMessage: Message = {
+          id: Date.now().toString(),
+          role: "assistant",
+          content: isRussian
+            ? "Привет! Я Ольга, всевидящее око Арктики! 🌟 Я ваш спутник-ассистент с душой и харизмой. Расскажите, что вас интересует в нашей прекрасной Арктике?"
+            : "Hi! I'm Olga, the all-seeing eye of the Arctic! 🌟 I'm your satellite assistant with soul and charisma. Tell me, what interests you about our beautiful Arctic?",
+          timestamp: new Date(),
+        };
+        setMessages([initialMessage]);
+      }
+    } finally {
+      setIsLoadingHistory(false);
+    }
+  };
+
+  const saveMessageToDB = async (role: string, content: string) => {
+    try {
+      const BACKEND_URL = import.meta.env.VITE_API_URL || "http://localhost:3001";
+      await fetch(`${BACKEND_URL}/api/chat/message`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          role,
+          content,
+          sessionId: currentSessionId
+        }),
+      });
+    } catch (error) {
+      console.error('Error saving message to DB:', error);
+      // Don't block the UI on save errors
+    }
   };
 
   const handleSend = async () => {
@@ -115,13 +217,13 @@ export function ChatPage({ onClose, satelliteData }: ChatPageProps) {
     };
 
     setMessages(prev => [...prev, userMessage]);
+    const currentInput = input;
     setInput("");
     setIsThinking(true);
 
-    // Simulate thinking delay
-    await new Promise(resolve => setTimeout(resolve, 1000 + Math.random() * 1000));
+    // Save user message to DB
+    await saveMessageToDB('user', userMessage.content);
 
-    const aiResponse = generateAIResponse(input);
     const assistantMessage: Message = {
       id: (Date.now() + 1).toString(),
       role: "assistant",
@@ -131,22 +233,53 @@ export function ChatPage({ onClose, satelliteData }: ChatPageProps) {
     };
 
     setMessages(prev => [...prev, assistantMessage]);
-    setIsThinking(false);
 
-    // Stream the response
-    for (let i = 0; i <= aiResponse.length; i++) {
-      await new Promise(resolve => setTimeout(resolve, 20 + Math.random() * 30));
+    try {
+      // Get conversation history (excluding the current messages being added)
+      const historyForAI = messages
+        .filter(msg => msg.role !== 'assistant' || !msg.isStreaming) // Exclude streaming assistant messages
+        .map(msg => ({ role: msg.role, content: msg.content }));
+
+      const aiResponse = await generateResponse(currentInput, undefined, historyForAI);
+
+      // Save assistant message to DB
+      await saveMessageToDB('assistant', aiResponse);
+
+      // Stream the response
+      for (let i = 0; i <= aiResponse.length; i++) {
+        await new Promise(resolve => setTimeout(resolve, 20 + Math.random() * 30));
+        setMessages(prev => {
+          const newMessages = [...prev];
+          const lastMessage = newMessages[newMessages.length - 1];
+          if (lastMessage.role === "assistant") {
+            lastMessage.content = aiResponse.slice(0, i);
+            if (i === aiResponse.length) {
+              lastMessage.isStreaming = false;
+            }
+          }
+          return newMessages;
+        });
+      }
+    } catch (error) {
+      console.error('Error generating AI response:', error);
+      const errorMessage = isRussian
+        ? "Ой, кажется у меня небольшие технические неполадки! Попробуйте еще раз через минутку. 🔧"
+        : "Oops, I seem to have some technical issues! Try again in a minute. 🔧";
+
+      // Save error message to DB
+      await saveMessageToDB('assistant', errorMessage);
+
       setMessages(prev => {
         const newMessages = [...prev];
         const lastMessage = newMessages[newMessages.length - 1];
         if (lastMessage.role === "assistant") {
-          lastMessage.content = aiResponse.slice(0, i);
-          if (i === aiResponse.length) {
-            lastMessage.isStreaming = false;
-          }
+          lastMessage.content = errorMessage;
+          lastMessage.isStreaming = false;
         }
         return newMessages;
       });
+    } finally {
+      setIsThinking(false);
     }
   };
 
@@ -170,7 +303,67 @@ export function ChatPage({ onClose, satelliteData }: ChatPageProps) {
   ];
 
   return (
-    <div className="fixed inset-0 bg-black z-50 flex flex-col">
+    <div className="fixed inset-0 bg-black z-50 flex">
+      {/* Sidebar */}
+      <motion.div
+        initial={{ x: 0 }}
+        animate={{ x: 0 }}
+        className="w-80 bg-black/90 backdrop-blur-xl border-r border-white/10 flex flex-col"
+      >
+        {/* Sidebar Header */}
+        <div className="p-4 border-b border-white/10">
+          <div className="flex items-center justify-between">
+            <h3 className="text-lg font-semibold">{isRussian ? "Чаты" : "Chats"}</h3>
+            <div className="flex gap-2">
+              <motion.button
+                whileHover={{ scale: 1.1 }}
+                whileTap={{ scale: 0.9 }}
+                onClick={createNewSession}
+                className="p-2 hover:bg-white/10 rounded-lg transition-colors"
+                title={isRussian ? "Новый чат" : "New chat"}
+              >
+                <Plus className="w-5 h-5" />
+              </motion.button>
+            </div>
+          </div>
+        </div>
+
+        {/* Sessions List */}
+        <div className="flex-1 overflow-y-auto p-2">
+          {sessions.map((session) => (
+            <motion.div
+              key={session.session_id}
+              initial={{ opacity: 0, y: 10 }}
+              animate={{ opacity: 1, y: 0 }}
+              className={`
+                group relative p-3 rounded-lg cursor-pointer transition-all mb-2
+                ${currentSessionId === session.session_id
+                  ? "bg-orange-500/20 border border-orange-500/30"
+                  : "hover:bg-white/5"
+                }
+              `}
+              onClick={() => switchSession(session.session_id)}
+            >
+              <div className="flex items-center justify-between">
+                <div className="flex-1 min-w-0">
+                  <div className="flex items-center gap-2">
+                    <MessageSquare className="w-4 h-4 text-neutral-400 flex-shrink-0" />
+                    <span className="text-sm font-medium truncate">
+                      {session.title}
+                    </span>
+                  </div>
+                  <div className="text-xs text-neutral-400 mt-1">
+                    {session.message_count} {isRussian ? "сообщений" : "messages"} • {new Date(session.updated_at).toLocaleDateString()}
+                  </div>
+                </div>
+              </div>
+            </motion.div>
+          ))}
+        </div>
+      </motion.div>
+
+      {/* Main Chat Area */}
+      <div className="flex-1 flex flex-col">
       {/* Header */}
       <motion.header 
         initial={{ y: -100 }}
@@ -198,14 +391,14 @@ export function ChatPage({ onClose, satelliteData }: ChatPageProps) {
               />
             </motion.div>
             <div>
-              <h2 className="text-xl">Arctic AI Assistant</h2>
+              <h2 className="text-xl">Ольга - Всевидящее Око Арктики</h2>
               <div className="flex items-center gap-2 text-sm text-neutral-400">
                 <motion.div
                   className="w-2 h-2 rounded-full bg-green-500"
                   animate={{ opacity: [1, 0.3, 1] }}
                   transition={{ duration: 2, repeat: Infinity }}
                 />
-                <span>{isRussian ? "Онлайн" : "Online"}</span>
+                <span>{isRussian ? "В орбите" : "In orbit"}</span>
               </div>
             </div>
           </div>
@@ -340,8 +533,26 @@ export function ChatPage({ onClose, satelliteData }: ChatPageProps) {
         <div ref={messagesEndRef} />
       </div>
 
+      {/* Loading state */}
+      {isLoadingHistory && (
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          className="px-6 pb-4"
+        >
+          <div className="flex items-center gap-2 text-neutral-400">
+            <motion.div
+              className="w-4 h-4 border-2 border-orange-500 border-t-transparent rounded-full"
+              animate={{ rotate: 360 }}
+              transition={{ duration: 1, repeat: Infinity, ease: "linear" }}
+            />
+            <span>{isRussian ? "Загружаю историю чата..." : "Loading chat history..."}</span>
+          </div>
+        </motion.div>
+      )}
+
       {/* Suggested questions */}
-      {messages.length <= 1 && (
+      {!isLoadingHistory && messages.length <= 1 && (
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
@@ -391,7 +602,7 @@ export function ChatPage({ onClose, satelliteData }: ChatPageProps) {
               value={input}
               onChange={(e) => setInput(e.target.value)}
               onKeyPress={handleKeyPress}
-              placeholder={isRussian ? "Задайте вопрос об Арктике..." : "Ask about the Arctic..."}
+              placeholder={isRussian ? "Спросите Ольгу об Арктике..." : "Ask Olga about the Arctic..."}
               className="flex-1 bg-transparent outline-none resize-none max-h-32 py-2 px-2"
               rows={1}
               disabled={isThinking}
@@ -423,35 +634,66 @@ export function ChatPage({ onClose, satelliteData }: ChatPageProps) {
           </div>
 
           {/* Data context indicator */}
-          {satelliteData && (
+          {(dashboardData || satelliteData) && (
             <motion.div
               initial={{ opacity: 0, y: 10 }}
               animate={{ opacity: 1, y: 0 }}
               className="mt-3 flex items-center gap-4 text-xs text-neutral-500"
             >
-              <div className="flex items-center gap-1">
-                <Thermometer className="w-3 h-3" />
-                <span>{satelliteData.temperature.toFixed(1)}°C</span>
-              </div>
-              <div className="flex items-center gap-1">
-                <Waves className="w-3 h-3" />
-                <span>{satelliteData.icecover.toFixed(1)}%</span>
-              </div>
-              <div className="flex items-center gap-1">
-                <AlertTriangle className="w-3 h-3" />
-                <span>{satelliteData.pollution.toFixed(1)}</span>
-              </div>
-              <div className="flex items-center gap-1">
-                <TrendingUp className="w-3 h-3" />
-                <span>{satelliteData.wildlife}</span>
-              </div>
+              {dashboardData ? (
+                <>
+                  <div className="flex items-center gap-1">
+                    <Thermometer className="w-3 h-3" />
+                    <span>{dashboardData.temperature.value.toFixed(1)}°C</span>
+                  </div>
+                  <div className="flex items-center gap-1">
+                    <Waves className="w-3 h-3" />
+                    <span>{dashboardData.ice_coverage.value.toFixed(1)}%</span>
+                  </div>
+                  <div className="flex items-center gap-1">
+                    <AlertTriangle className="w-3 h-3" />
+                    <span>{dashboardData.pollution.value.toFixed(1)}</span>
+                  </div>
+                  <div className="flex items-center gap-1">
+                    <TrendingUp className="w-3 h-3" />
+                    <span>{dashboardData.wildlife.value}</span>
+                  </div>
+                  {satellites && (
+                    <div className="flex items-center gap-1">
+                      <span>🛰️</span>
+                      <span>{satellites.active}</span>
+                    </div>
+                  )}
+                </>
+              ) : satelliteData ? (
+                <>
+                  <div className="flex items-center gap-1">
+                    <Thermometer className="w-3 h-3" />
+                    <span>{satelliteData.temperature.toFixed(1)}°C</span>
+                  </div>
+                  <div className="flex items-center gap-1">
+                    <Waves className="w-3 h-3" />
+                    <span>{satelliteData.icecover.toFixed(1)}%</span>
+                  </div>
+                  <div className="flex items-center gap-1">
+                    <AlertTriangle className="w-3 h-3" />
+                    <span>{satelliteData.pollution.toFixed(1)}</span>
+                  </div>
+                  <div className="flex items-center gap-1">
+                    <TrendingUp className="w-3 h-3" />
+                    <span>{satelliteData.wildlife}</span>
+                  </div>
+                </>
+              ) : null}
               <span className="ml-auto">
-                {isRussian ? "AI использует актуальные данные" : "AI using live data"}
+                {isRussian ? "Ольга видит всё в реальном времени" : "Olga sees everything in real-time"}
               </span>
             </motion.div>
           )}
         </div>
       </motion.div>
+      </div>
+
     </div>
   );
 }

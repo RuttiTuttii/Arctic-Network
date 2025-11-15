@@ -1,0 +1,39 @@
+version: '3.8'
+
+services:
+  # Frontend development server (Vite)
+  frontend:
+    build:
+      context: .
+      dockerfile: Dockerfile.frontend
+    ports:
+      - "5173:5173"
+    environment:
+      - VITE_API_URL=http://localhost:3000
+    volumes:
+      - .:/app
+      - /app/node_modules
+    command: npm run dev
+
+  # Backend API server
+  backend:
+    build:
+      context: ./server
+      dockerfile: Dockerfile
+    ports:
+      - "3001:3001"
+    environment:
+      - PORT=3001
+      - NODE_ENV=development
+    volumes:
+      - ./db:/app/db
+      - ./server:/app/server
+      - /app/server/node_modules
+    command: npm run dev
+
+  # SQLite database volume management
+  db:
+    image: alpine:latest
+    volumes:
+      - ./db:/db
+    command: mkdir -p /db && touch /db/arctic.db
