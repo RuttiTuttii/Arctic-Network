@@ -6,11 +6,13 @@ import { NetworkSection } from "./components/NetworkSection";
 import { Footer } from "./components/Footer";
 import { Preloader } from "./components/Preloader";
 import { GlassMenu } from "./components/GlassMenu";
+import { Logo } from "./components/Logo";
 import { RegisterPage } from "./pages/RegisterPage";
 import { DashboardPage } from "./pages/DashboardPage";
 import { PricingPage } from "./pages/PricingPage";
 import { LoginPage } from "./pages/LoginPage";
 import { ChatPage } from "./pages/ChatPage";
+import { AccountSettingsPage } from "./pages/AccountSettingsPage";
 import { ProtectedRoute } from "./components/ProtectedRoute";
 import { ScrollToTop } from "./components/ScrollToTop";
 import { LanguageProvider } from "./contexts/LanguageContext";
@@ -39,26 +41,34 @@ function AppContent() {
         <>
           <ScrollToTop />
           <Routes>
-            <Route path="/" element={<HomePage />} />
-            <Route path="/login" element={<LoginPage />} />
-            <Route path="/register" element={<RegisterPage />} />
-            <Route path="/pricing" element={<PricingPage />} />
-            <Route path="/chat" element={<ChatPage />} />
-            <Route
-              path="/dashboard"
-              element={
-                <ProtectedRoute>
-                  <DashboardPage />
-                </ProtectedRoute>
-              }
-            />
-          </Routes>
-          <GlassMenu />
-        </>
-      )}
-    </div>
-  );
-}
+             <Route path="/" element={<HomePage />} />
+             <Route path="/login" element={<LoginPage />} />
+             <Route path="/register" element={<RegisterPage />} />
+             <Route path="/pricing" element={<PricingPage />} />
+             <Route path="/chat" element={<ChatPage />} />
+             <Route
+               path="/dashboard"
+               element={
+                 <ProtectedRoute>
+                   <DashboardPage />
+                 </ProtectedRoute>
+               }
+             />
+             <Route
+               path="/account-settings"
+               element={
+                 <ProtectedRoute>
+                   <AccountSettingsPage />
+                 </ProtectedRoute>
+               }
+             />
+           </Routes>
+           <GlassMenu />
+         </>
+       )}
+     </div>
+   );
+ }
 
 export default function App() {
   return (

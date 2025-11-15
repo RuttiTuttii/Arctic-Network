@@ -20,6 +20,7 @@ import {
 import { useLanguage } from "../contexts/LanguageContext";
 import { useGeminiAI } from "../hooks/useGeminiAI";
 import { useDashboardData } from "../hooks/useDashboard";
+import { Header } from "../components/Header";
 
 interface Message {
   id: string;
@@ -312,6 +313,9 @@ export function ChatPage({ onClose, satelliteData }: ChatPageProps) {
       >
         {/* Sidebar Header */}
         <div className="p-4 border-b border-white/10">
+          <div className="mb-4">
+            <Header />
+          </div>
           <div className="flex items-center justify-between">
             <h3 className="text-lg font-semibold">{isRussian ? "Чаты" : "Chats"}</h3>
             <div className="flex gap-2">

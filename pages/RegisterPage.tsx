@@ -4,6 +4,7 @@ import { useNavigate } from "react-router-dom";
 import { Mail, Lock, User, ArrowRight, Eye, EyeOff, CreditCard, LogOut } from "lucide-react";
 import { useLanguage } from "../contexts/LanguageContext";
 import { useAuth } from "../contexts/AuthContext";
+import { Header } from "../components/Header";
 
 export function RegisterPage() {
   const navigate = useNavigate();
@@ -33,6 +34,7 @@ export function RegisterPage() {
 
   return (
     <div className="min-h-screen bg-black text-white overflow-hidden relative">
+      <Header />
       {/* Animated background */}
       <div className="absolute inset-0 opacity-30">
         <svg className="w-full h-full">
@@ -377,7 +379,7 @@ export function RegisterPage() {
                 <div className="mt-8 text-center text-sm text-neutral-400">
                   {isRussian ? "Уже есть аккаунт?" : "Already have an account?"}{" "}
                   <button
-                    onClick={() => navigate("/")}
+                    onClick={() => navigate("/login")}
                     className="text-orange-500 hover:text-orange-400 transition-colors"
                   >
                     {isRussian ? "Войти" : "Sign in"}

@@ -13,6 +13,7 @@ import {
   Info
 } from "lucide-react";
 import { useLanguage } from "../contexts/LanguageContext";
+import { Header } from "../components/Header";
 
 export function PricingPage() {
   const navigate = useNavigate();
@@ -99,6 +100,7 @@ export function PricingPage() {
 
   return (
     <div className="min-h-screen bg-black text-white overflow-hidden relative">
+      <Header />
       {/* Animated background */}
       <div className="absolute inset-0 opacity-20">
         <svg className="w-full h-full">

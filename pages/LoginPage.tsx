@@ -3,8 +3,8 @@ import { useState } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
 import { Mail, Lock, ArrowRight } from "lucide-react";
 import { useAuth } from "../contexts/AuthContext";
-
 import { useLanguage } from "../contexts/LanguageContext";
+import { Header } from "../components/Header";
 
 export function LoginPage() {
   const [username, setUsername] = useState("");
@@ -41,6 +41,7 @@ export function LoginPage() {
 
   return (
     <div className="min-h-screen bg-black text-white overflow-hidden relative">
+      <Header />
       {/* Animated background */}
       <div className="absolute inset-0 opacity-30">
         <svg className="w-full h-full">

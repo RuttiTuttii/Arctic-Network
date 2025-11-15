@@ -3,10 +3,14 @@ import { useNavigate } from "react-router-dom";
 import { SatelliteNetwork } from "./SatelliteNetwork";
 import { GlassButton } from "./GlassButton";
 import { useLanguage } from "../contexts/LanguageContext";
+import { useAuth } from "../contexts/AuthContext";
 
 export function Hero() {
   const navigate = useNavigate();
-  const { t } = useLanguage();
+  const { t, language } = useLanguage();
+  const { user } = useAuth();
+  const isAuthenticated = !!user;
+  const isRussian = language === "ru";
 
   return (
     <div className="relative min-h-screen overflow-hidden bg-black">
@@ -111,7 +115,7 @@ export function Hero() {
               {t("exploreDashboard")}
             </GlassButton>
             <GlassButton variant="secondary" onClick={() => navigate("/register")}>
-              {t("learnMore")}
+              {isAuthenticated ? (isRussian ? "АККАУНТ" : "ACCOUNT") : (isRussian ? "ЗАРЕГИСТРИРОВАТЬСЯ" : "SIGN UP")}
             </GlassButton>
           </motion.div>
         </motion.div>
