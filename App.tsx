@@ -6,7 +6,7 @@ import { NetworkSection } from "./components/NetworkSection";
 import { Footer } from "./components/Footer";
 import { Preloader } from "./components/Preloader";
 import { GlassMenu } from "./components/GlassMenu";
-import { Logo } from "./components/Logo";
+import { Header } from "./components/Header";
 import { RegisterPage } from "./pages/RegisterPage";
 import { DashboardPage } from "./pages/DashboardPage";
 import { PricingPage } from "./pages/PricingPage";
@@ -22,6 +22,7 @@ import { useState } from "react";
 function HomePage() {
   return (
     <>
+      <Header />
       <Hero />
       <NetworkSection />
       <Features />
@@ -63,7 +64,9 @@ function AppContent() {
                }
              />
            </Routes>
-           <GlassMenu />
+           <div className="hidden md:block">
+             <GlassMenu />
+           </div>
          </>
        )}
      </div>

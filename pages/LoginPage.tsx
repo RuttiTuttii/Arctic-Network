@@ -77,8 +77,8 @@ export function LoginPage() {
         ))}
       </div>
 
-      <div className="relative z-10 min-h-screen flex items-center justify-center p-6">
-        <div className="w-full max-w-6xl grid lg:grid-cols-2 gap-12 items-center">
+      <div className="relative z-10 min-h-screen flex items-center justify-center p-4 md:p-6">
+        <div className="w-full max-w-6xl grid lg:grid-cols-2 gap-8 md:gap-12 items-center">
           {/* Left side - Branding */}
           <motion.div
             initial={{ opacity: 0, x: -50 }}
@@ -86,7 +86,7 @@ export function LoginPage() {
             transition={{ duration: 0.8 }}
             className="hidden lg:block"
           >
-            <div className="flex items-center gap-3 mb-8">
+            <div className="flex items-center gap-3 mb-6 md:mb-8">
               <div className="grid grid-cols-3 gap-1">
                 {[...Array(9)].map((_, i) => (
                   <motion.div
@@ -98,10 +98,10 @@ export function LoginPage() {
                   />
                 ))}
               </div>
-              <span className="text-xl tracking-wider">ARCTIC NETWORK</span>
+              <span className="text-lg md:text-xl tracking-wider">ARCTIC NETWORK</span>
             </div>
 
-            <h1 className="text-5xl lg:text-6xl mb-6 leading-tight">
+            <h1 className="text-4xl md:text-5xl lg:text-6xl mb-4 md:mb-6 leading-tight">
               {isRussian ? "Добро пожаловать" : "Welcome"}
               <br />
               <span className="text-orange-500">
@@ -111,14 +111,14 @@ export function LoginPage() {
               {isRussian ? "в систему" : "to the System"}
             </h1>
 
-            <p className="text-xl text-neutral-400 mb-12 leading-relaxed max-w-lg">
+            <p className="text-lg md:text-xl text-neutral-400 mb-8 md:mb-12 leading-relaxed max-w-lg">
               {isRussian
                 ? "Войдите в свою учетную запись для доступа к спутниковому мониторингу Арктики."
                 : "Sign in to your account to access Arctic satellite monitoring."}
             </p>
 
             {/* Stats */}
-            <div className="grid grid-cols-3 gap-6">
+            <div className="grid grid-cols-3 gap-4 md:gap-6">
               {[
                 { value: "47+", label: isRussian ? "Спутников" : "Satellites" },
                 { value: "99.9%", label: isRussian ? "Время работы" : "Uptime" },
@@ -130,7 +130,7 @@ export function LoginPage() {
                   animate={{ opacity: 1, y: 0 }}
                   transition={{ delay: 0.5 + i * 0.1 }}
                 >
-                  <div className="text-3xl text-orange-500 mb-1">{stat.value}</div>
+                  <div className="text-2xl md:text-3xl text-orange-500 mb-1">{stat.value}</div>
                   <div className="text-sm text-neutral-500 tracking-wider">{stat.label}</div>
                 </motion.div>
               ))}
@@ -148,9 +148,9 @@ export function LoginPage() {
             <div className="absolute inset-0 bg-orange-500/10 blur-3xl rounded-3xl" />
 
             <div
-              className="relative backdrop-blur-3xl bg-white/5 border border-white/10 p-8 md:p-12"
+              className="relative backdrop-blur-3xl bg-white/5 border border-white/10 p-6 md:p-8 lg:p-12"
               style={{
-                borderRadius: "32px",
+                borderRadius: "24px",
                 boxShadow: "0 20px 60px rgba(0, 0, 0, 0.3), inset 0 1px 0 rgba(255, 255, 255, 0.05)",
               }}
             >
@@ -175,8 +175,8 @@ export function LoginPage() {
                       type="text"
                       value={username}
                       onChange={(e) => setUsername(e.target.value)}
-                      className="w-full pl-12 pr-4 py-4 bg-white/5 border border-white/10 backdrop-blur-xl focus:border-orange-500 focus:outline-none transition-colors"
-                      style={{ borderRadius: "16px" }}
+                      className="w-full pl-12 pr-4 py-3 md:py-4 bg-white/5 border border-white/10 backdrop-blur-xl focus:border-orange-500 focus:outline-none transition-colors text-sm md:text-base"
+                      style={{ borderRadius: "12px" }}
                       placeholder={isRussian ? "Введите имя пользователя" : "Enter username"}
                       required
                     />
@@ -194,8 +194,8 @@ export function LoginPage() {
                       type="password"
                       value={password}
                       onChange={(e) => setPassword(e.target.value)}
-                      className="w-full pl-12 pr-4 py-4 bg-white/5 border border-white/10 backdrop-blur-xl focus:border-orange-500 focus:outline-none transition-colors"
-                      style={{ borderRadius: "16px" }}
+                      className="w-full pl-12 pr-4 py-3 md:py-4 bg-white/5 border border-white/10 backdrop-blur-xl focus:border-orange-500 focus:outline-none transition-colors text-sm md:text-base"
+                      style={{ borderRadius: "12px" }}
                       placeholder="••••••••"
                       required
                     />
@@ -216,9 +216,9 @@ export function LoginPage() {
                 <motion.button
                   type="submit"
                   disabled={isLoading}
-                  className="w-full px-8 py-4 tracking-wider backdrop-blur-xl border border-white/20 bg-orange-500/80 hover:bg-orange-500 disabled:opacity-50 disabled:cursor-not-allowed transition-all flex items-center justify-center gap-3 group"
+                  className="w-full px-6 md:px-8 py-3 md:py-4 tracking-wider backdrop-blur-xl border border-white/20 bg-orange-500/80 hover:bg-orange-500 disabled:opacity-50 disabled:cursor-not-allowed transition-all flex items-center justify-center gap-2 md:gap-3 group text-sm md:text-base"
                   style={{
-                    borderRadius: "16px",
+                    borderRadius: "12px",
                     boxShadow: "0 8px 32px rgba(249, 115, 22, 0.3), inset 0 1px 0 rgba(255, 255, 255, 0.1)",
                   }}
                   whileHover={!isLoading ? { scale: 1.02 } : {}}

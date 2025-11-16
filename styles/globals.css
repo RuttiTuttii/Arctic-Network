@@ -8,6 +8,11 @@
   }
 }
 
+/* Ensure the main scroll container has a non-static position so motion's useScroll can calculate offsets */
+html, body, #root {
+  position: relative;
+}
+
 /* Custom styles for Arctic Network */
 .glass-effect {
   backdrop-filter: blur(16px) saturate(180%);

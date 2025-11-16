@@ -8,6 +8,16 @@ export function SatelliteRecordings() {
   const { language } = useLanguage();
   const isRussian = language === "ru";
   const { recordings, isLoading } = useSatelliteRecordings();
+
+  const translateTitle = (title: string) => {
+    const translations: Record<string, string> = {
+      "Спутниковое наблюдение - Оптический канал 1": "Satellite Observation - Optical Channel 1",
+      "Спутниковое наблюдение - Оптический канал 2": "Satellite Observation - Optical Channel 2",
+      "Наблюдение с земли - Наземная станция": "Ground Observation - Ground Station",
+      "Мониторинг океана - Плавучий буй": "Ocean Monitoring - Floating Buoy",
+    };
+    return isRussian ? title : (translations[title] || title);
+  };
   const [selectedRecording, setSelectedRecording] = useState<(typeof recordings)[0] | null>(null);
   const [isPlaying, setIsPlaying] = useState(false);
   const [isMuted, setIsMuted] = useState(false);
@@ -111,7 +121,7 @@ export function SatelliteRecordings() {
                       {selectedRecording.satellite}
                     </span>
                   </div>
-                  <h3 className="text-lg font-semibold mb-2">{selectedRecording.title}</h3>
+                  <h3 className="text-lg font-semibold mb-2">{translateTitle(selectedRecording.title)}</h3>
                 </div>
               )}
 
@@ -323,7 +333,7 @@ export function SatelliteRecordings() {
                 {/* Info overlay */}
                 <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black to-transparent p-3 opacity-0 group-hover:opacity-100 transition-opacity">
                   <div className="text-xs text-neutral-300 mb-1 truncate">
-                    {recording.title}
+                    {translateTitle(recording.title)}
                   </div>
                   <div className="flex items-center justify-between text-xs text-neutral-500">
                     <span>{recording.duration}</span>

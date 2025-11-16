@@ -70,8 +70,8 @@ export function RegisterPage() {
         ))}
       </div>
 
-      <div className="relative z-10 min-h-screen flex items-center justify-center p-6">
-        <div className="w-full max-w-6xl grid lg:grid-cols-2 gap-12 items-center">
+      <div className="relative z-10 min-h-screen flex items-center justify-center p-4 md:p-6">
+        <div className="w-full max-w-6xl grid lg:grid-cols-2 gap-8 md:gap-12 items-center">
           {/* Left side - Branding */}
           <motion.div
             initial={{ opacity: 0, x: -50 }}

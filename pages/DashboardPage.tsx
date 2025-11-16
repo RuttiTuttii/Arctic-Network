@@ -86,18 +86,18 @@ export function DashboardPage() {
   return (
     <div className="min-h-screen bg-black text-white">
       {/* Header */}
-      <header className="sticky top-0 z-40 backdrop-blur-xl bg-black/80 border-b border-white/10">
-        <div className="container mx-auto px-6 py-4">
-          <div className="flex items-center justify-between flex-wrap gap-4">
-            <div className="flex items-center gap-4">
+      <header className="sticky top-0 z-40 backdrop-blur-xl bg-black/90 border-b border-white/10">
+        <div className="container mx-auto px-4 md:px-6 py-3 md:py-4">
+          <div className="flex items-center justify-between flex-wrap gap-3 md:gap-4">
+            <div className="flex items-center gap-2 md:gap-4">
               <Header />
-              <div className="text-xs text-neutral-500">
-                {isRussian ? "ПАНЕЛЬ УПРАВЛЕНИЯ" : "CONTROL PANEL"}
+              <div className="text-xs text-neutral-500 hidden sm:block">
+                {isRussian ? "АРКТИЧЕСКИЙ МОНИТОР" : "ARCTIC MONITOR"}
               </div>
             </div>
 
             {/* Search */}
-            <div className="flex-1 max-w-md">
+            <div className="flex-1 max-w-md min-w-0 order-3 md:order-none w-full md:w-auto mt-3 md:mt-0">
               <div className="relative">
                 <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-neutral-500" />
                 <input
@@ -105,22 +105,22 @@ export function DashboardPage() {
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
                   placeholder={isRussian ? "Поиск..." : "Search..."}
-                  className="w-full pl-10 pr-4 py-2 bg-white/5 border border-white/10 rounded-lg focus:border-orange-500 focus:outline-none transition-colors"
+                  className="w-full pl-10 pr-4 py-2 bg-white/10 border border-white/20 rounded-lg focus:border-orange-500 focus:outline-none transition-colors text-sm"
                 />
               </div>
             </div>
 
-            <div className="flex items-center gap-4">
+            <div className="flex items-center gap-2 md:gap-4">
               <motion.div
                 className="w-2 h-2 rounded-full bg-green-500"
                 animate={{ opacity: [1, 0.3, 1] }}
                 transition={{ duration: 2, repeat: Infinity, repeatDelay: 0 }}
               />
-              <span className="text-sm text-neutral-400">
+              <span className="text-xs md:text-sm text-neutral-400 hidden sm:inline">
                 {isRussian ? "АКТИВНО" : "LIVE"}
               </span>
 
-              <div className="flex items-center gap-2 ml-4">
+              <div className="flex items-center gap-1 md:gap-2 ml-2 md:ml-4">
                 {/* AI Chat Button */}
                 <motion.button
                   whileHover={{ scale: 1.1 }}
@@ -165,7 +165,7 @@ export function DashboardPage() {
                       initial={{ opacity: 0, y: -10, scale: 0.95 }}
                       animate={{ opacity: 1, y: 0, scale: 1 }}
                       exit={{ opacity: 0, y: -10, scale: 0.95 }}
-                      className="absolute right-0 top-12 w-80 backdrop-blur-xl bg-black/90 border border-white/10 rounded-xl shadow-2xl z-50"
+                      className="absolute right-0 top-12 w-80 max-w-[calc(100vw-2rem)] left-4 md:left-auto backdrop-blur-xl bg-black border border-white/10 rounded-xl shadow-2xl z-50 md:right-0"
                     >
                       <div className="p-4 border-b border-white/10">
                         <h3 className="font-semibold">
@@ -219,7 +219,7 @@ export function DashboardPage() {
                       initial={{ opacity: 0, y: -10, scale: 0.95 }}
                       animate={{ opacity: 1, y: 0, scale: 1 }}
                       exit={{ opacity: 0, y: -10, scale: 0.95 }}
-                      className="absolute right-0 top-12 w-80 backdrop-blur-xl bg-black/90 border border-white/10 rounded-xl shadow-2xl z-50"
+                      className="absolute right-0 top-12 w-80 max-w-[calc(100vw-0.5rem)] left-1 md:left-auto backdrop-blur-xl bg-black border border-white/10 rounded-xl shadow-2xl z-50 md:right-0"
                     >
                       <div className="p-4 border-b border-white/10">
                         <h3 className="font-semibold">
@@ -387,7 +387,7 @@ export function DashboardPage() {
         </div>
       </header>
 
-      <div className="container mx-auto px-6 py-8 pb-32">
+      <div className="container mx-auto px-4 md:px-6 py-6 md:py-8 pb-24 md:pb-32">
         {/* Tabs */}
         <div className="flex gap-4 mb-8 border-b border-white/10">
           <motion.button
@@ -429,14 +429,14 @@ export function DashboardPage() {
         <motion.div
           initial={{ opacity: 0, y: -20 }}
           animate={{ opacity: 1, y: 0 }}
-          className="mb-8 backdrop-blur-xl bg-gradient-to-r from-orange-500/10 to-purple-500/10 border border-orange-500/20 p-6 rounded-3xl cursor-pointer"
+          className="mb-6 md:mb-8 backdrop-blur-xl bg-gradient-to-r from-orange-500/10 to-purple-500/10 border border-orange-500/20 p-4 md:p-6 rounded-2xl md:rounded-3xl cursor-pointer"
           whileHover={{ scale: 1.01 }}
           onClick={() => navigate("/chat")}
         >
-          <div className="flex items-center justify-between">
-            <div className="flex items-center gap-4">
+          <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+            <div className="flex items-center gap-3 md:gap-4">
               <motion.div
-                className="w-12 h-12 rounded-full bg-gradient-to-br from-orange-500 to-orange-600 flex items-center justify-center"
+                className="w-10 h-10 md:w-12 md:h-12 rounded-full bg-gradient-to-br from-orange-500 to-orange-600 flex items-center justify-center"
                 animate={{
                   boxShadow: [
                     "0 0 20px rgba(249, 115, 22, 0.3)",
@@ -446,10 +446,10 @@ export function DashboardPage() {
                 }}
                 transition={{ duration: 2, repeat: Infinity }}
               >
-                <Sparkles className="w-6 h-6 text-white" />
+                <Sparkles className="w-5 h-5 md:w-6 md:h-6 text-white" />
               </motion.div>
               <div>
-                <h3 className="text-xl mb-1">
+                <h3 className="text-lg md:text-xl mb-1">
                   {isRussian ? "Спросите AI Ассистента" : "Ask the AI Assistant"}
                 </h3>
                 <p className="text-sm text-neutral-400">
@@ -463,9 +463,9 @@ export function DashboardPage() {
               whileHover={{ scale: 1.05 }}
               whileTap={{ scale: 0.95 }}
               onClick={() => navigate("/chat")}
-              className="px-6 py-3 bg-orange-500 hover:bg-orange-600 rounded-xl flex items-center gap-2 transition-colors"
+              className="w-full sm:w-auto px-4 md:px-6 py-2 md:py-3 bg-orange-500 hover:bg-orange-600 rounded-xl flex items-center justify-center gap-2 transition-colors text-sm md:text-base"
             >
-              <MessageSquare className="w-5 h-5" />
+              <MessageSquare className="w-4 h-4 md:w-5 md:h-5" />
               <span>{isRussian ? "Открыть чат" : "Open Chat"}</span>
             </motion.button>
           </div>
@@ -502,7 +502,7 @@ export function DashboardPage() {
         )}
 
         {/* Quick stats */}
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
+        <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 md:gap-4 mb-6 md:mb-8">
           {[
             {
               id: "temperature",
@@ -580,7 +580,7 @@ export function DashboardPage() {
         </div>
 
         {/* Main content grid */}
-        <div className="grid lg:grid-cols-3 gap-6 mb-6">
+        <div className="grid lg:grid-cols-3 gap-4 md:gap-6 mb-4 md:mb-6">
           {/* Real-time data visualization */}
           <div className="lg:col-span-2 backdrop-blur-xl bg-white/5 border border-white/10 p-6" style={{ borderRadius: "20px" }}>
             <div className="flex items-center justify-between mb-6">

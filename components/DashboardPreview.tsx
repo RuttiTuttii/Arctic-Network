@@ -15,7 +15,8 @@ export function DashboardPreview() {
 
   const scale = useTransform(scrollYProgress, [0, 0.5, 1], [0.8, 1, 0.8]);
   const opacity = useTransform(scrollYProgress, [0, 0.2, 0.8, 1], [0, 1, 1, 0]);
-  const { t } = useLanguage();
+  const { t, language } = useLanguage();
+  const isRussian = language === "ru";
 
   const [data, setData] = useState({
     temperature: -15.3,
@@ -208,9 +209,9 @@ export function DashboardPreview() {
                   <div className="text-sm tracking-wider text-neutral-500 mb-4">{t("recentActivity")}</div>
                   <div className="space-y-3">
                     {[
-                      { time: "14:32:18", event: "Satellite ARCTIC-1 data sync complete", type: "success" },
-                      { time: "14:31:45", event: "Ocean buoy GAMMA reporting anomaly", type: "warning" },
-                      { time: "14:30:22", event: "Wildlife tracking update: 12 new signals", type: "info" },
+                      { time: "14:32:18", event: isRussian ? "Синхронизация данных спутника ARCTIC-1 завершена" : "Satellite ARCTIC-1 data sync complete", type: "success" },
+                      { time: "14:31:45", event: isRussian ? "Буй GAMMA сообщает об аномалии" : "Ocean buoy GAMMA reporting anomaly", type: "warning" },
+                      { time: "14:30:22", event: isRussian ? "Обновление отслеживания животных: 12 новых сигналов" : "Wildlife tracking update: 12 new signals", type: "info" },
                     ].map((log, i) => (
                       <motion.div
                         key={i}

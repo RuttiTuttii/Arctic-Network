@@ -30,32 +30,9 @@ export function Hero() {
         </svg>
       </div>
 
-      {/* Navigation */}
-      <nav className="relative z-50 flex items-center justify-between p-6 md:p-8">
-        <motion.div
-          initial={{ opacity: 0, x: -20 }}
-          animate={{ opacity: 1, x: 0 }}
-          transition={{ duration: 0.6 }}
-          className="flex items-center gap-2 cursor-pointer"
-          onClick={() => navigate("/")}
-        >
-          <div className="grid grid-cols-3 gap-1">
-            {[...Array(9)].map((_, i) => (
-              <motion.div
-                key={i}
-                className="w-3 h-1 bg-white"
-                initial={{ scaleX: 0 }}
-                animate={{ scaleX: 1 }}
-                transition={{ delay: i * 0.05, duration: 0.3 }}
-              />
-            ))}
-          </div>
-          <span className="ml-2 tracking-wider">ARCTIC NETWORK</span>
-        </motion.div>
-      </nav>
 
       {/* Hero Content */}
-      <div className="relative z-10 container mx-auto px-6 md:px-8 pt-20 md:pt-32 pb-32">
+      <div className="relative z-10 container mx-auto px-4 md:px-6 lg:px-8 pt-8 md:pt-16 lg:pt-24 pb-20 md:pb-32">
         <motion.div
           initial={{ opacity: 0, y: 30 }}
           animate={{ opacity: 1, y: 0 }}
@@ -66,12 +43,12 @@ export function Hero() {
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             transition={{ duration: 0.6, delay: 0.5 }}
-            className="text-orange-500 tracking-[0.3em] mb-6"
+            className="text-orange-500 tracking-[0.2em] md:tracking-[0.3em] mb-4 md:mb-6 text-sm md:text-base"
           >
             {t("satelliteEcosystem")}
           </motion.div>
-          
-          <h1 className="text-5xl md:text-7xl lg:text-8xl mb-8 leading-tight">
+
+          <h1 className="text-3xl md:text-5xl lg:text-7xl xl:text-8xl mb-6 md:mb-8 leading-tight">
             <motion.div
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
@@ -100,7 +77,7 @@ export function Hero() {
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             transition={{ duration: 0.6, delay: 1.1 }}
-            className="text-xl md:text-2xl text-neutral-400 max-w-3xl mb-12 leading-relaxed"
+            className="text-lg md:text-xl lg:text-2xl text-neutral-400 max-w-3xl mb-8 md:mb-12 leading-relaxed"
           >
             {t("heroDescription")}
           </motion.p>
@@ -109,7 +86,7 @@ export function Hero() {
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.6, delay: 1.3 }}
-            className="flex flex-wrap gap-4"
+            className="flex flex-col sm:flex-row gap-3 md:gap-4"
           >
             <GlassButton variant="primary" onClick={() => navigate("/dashboard")}>
               {t("exploreDashboard")}
@@ -129,9 +106,9 @@ export function Hero() {
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.8, delay: 1.5 }}
-        className="relative z-10 container mx-auto px-6 md:px-8 pb-16"
+        className="relative z-10 container mx-auto px-4 md:px-6 lg:px-8 pb-12 md:pb-16"
       >
-        <div className="grid grid-cols-3 gap-8 max-w-4xl">
+        <div className="grid grid-cols-1 sm:grid-cols-3 gap-6 md:gap-8 max-w-4xl">
           {[
             { label: t("activeSatellites"), value: "47" },
             { label: t("dataPoints"), value: "2.4M" },
@@ -142,15 +119,15 @@ export function Hero() {
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.6, delay: 1.6 + i * 0.1 }}
-              className="relative"
+              className="relative text-center sm:text-left"
             >
-              <div className="text-4xl md:text-5xl mb-2 text-orange-500">{stat.value}</div>
+              <div className="text-3xl md:text-4xl lg:text-5xl mb-2 text-orange-500">{stat.value}</div>
               <div className="text-sm tracking-wider text-neutral-500">{stat.label}</div>
               <motion.div
                 initial={{ scaleX: 0 }}
                 animate={{ scaleX: 1 }}
                 transition={{ duration: 0.8, delay: 1.8 + i * 0.1 }}
-                className="h-px bg-neutral-800 mt-4 origin-left"
+                className="h-px bg-neutral-800 mt-4 origin-center sm:origin-left"
               />
             </motion.div>
           ))}
