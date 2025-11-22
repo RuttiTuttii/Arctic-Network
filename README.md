@@ -1,4 +1,4 @@
-**https://github.com/user-attachments/assets/928c0859-9424-4330-a4f4-192918209b66**
+https://github.com/user-attachments/assets/928c0859-9424-4330-a4f4-192918209b66
 
 # 🌍 Arctic Network — Панель мониторинга данных Арктики в
 
