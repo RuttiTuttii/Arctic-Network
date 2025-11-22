@@ -1,55 +1,55 @@
-# 🌍 Arctic Network - Real-time Arctic Data Dashboard
+# 🌍 Arctic Network — Панель мониторинга данных Арктики в реальном времени
 
-A comprehensive, production-ready web application for monitoring Arctic satellite data in real-time with AI-powered analysis and interactive visualizations.
+Полнофункциональное, готовое к продакшену веб-приложение для мониторинга спутниковых данных Арктики в реальном времени с поддержкой ИИ-аналитики и интерактивных визуализаций.
 
-## 🎯 Features
+## 🎯 Возможности
 
-### Dashboard & Monitoring
-- ✅ **Real-time Metrics** - Temperature, ice coverage, pollution, wildlife, wind speed, sea level
-- ✅ **Live Updates** - Data refreshes every 2 seconds from backend
-- ✅ **Satellite Network** - Track 47 active Arctic satellites
-- ✅ **Trend Analysis** - Track metric changes with up/down/stable indicators
-- ✅ **Historical Data** - View metrics over time with charts
+### Панель и мониторинг
+- ✅ **Метрики в реальном времени** — температура, ледовый покров, загрязнение, дикая природа, скорость ветра, уровень моря
+- ✅ **Живые обновления** — обновление данных каждые 2 секунды с бэкенда
+- ✅ **Спутниковая сеть** — отслеживание 47 активных арктических спутников
+- ✅ **Анализ трендов** — отслеживание изменений метрик (рост/падение/стабильность)
+- ✅ **Исторические данные** — просмотр метрик за периоды с помощью графиков
 
-### Backend System
-- ✅ **Express.js REST API** - 4 endpoints with real-time data
-- ✅ **Mock Data Generator** - Arctic metrics updated every second
-- ✅ **SQLite Database** - Time-series data storage with indexes
-- ✅ **Docker Support** - Full containerization ready
+### Серверная система
+- ✅ **Express.js REST API** — 4 эндпоинта с данными в реальном времени
+- ✅ **Генератор Mock-данных** — обновление арктических метрик каждую секунду
+- ✅ **База SQLite** — хранение тайм-серий с индексами
+- ✅ **Docker-поддержка** — полная контейнеризация
 
-### Frontend Experience
-- ✅ **Glass Morphism UI** - Modern sleek design
-- ✅ **Smooth Animations** - Optimized Framer Motion
-- ✅ **AI Chat Assistant** - Real-time data analysis
-- ✅ **Multi-language** - English and Russian support
+### Клиентская часть
+- ✅ **UI в стиле Glass Morphism** — современный минималистичный дизайн
+- ✅ **Плавные анимации** — оптимизация на Framer Motion
+- ✅ **ИИ-чат ассистент** — анализ данных в реальном времени
+- ✅ **Мультиязычность** — поддержка английского и русского
 
-## 🚀 Quick Start (5 Minutes)
+## 🚀 Быстрый старт (5 минут)
 
 ```bash
-# 1. Initialize database
+# 1. Инициализация базы данных
 chmod +x init-db.sh && ./init-db.sh
 
-# 2. Start frontend (Terminal 1)
+# 2. Запуск фронтенда (Терминал 1)
 npm install && npm run dev
 
-# 3. Start backend (Terminal 2)
+# 3. Запуск бэкенда (Терминал 2)
 cd server && npm install && npm run dev
-```
+````
 
-Visit `http://localhost:5173` and `http://localhost:3000/api/dashboard` ✅
+Откройте `http://localhost:5173` и `http://localhost:3000/api/dashboard` ✅
 
-## 📖 Documentation
+## 📖 Документация
 
-- **Quick Start**: `QUICKSTART.md`
-- **Implementation**: `IMPLEMENTATION.md`
-- **Backend**: `server/README.md`
-- **Summary**: `BACKEND_SUMMARY.md`
+* **Быстрый старт**: `QUICKSTART.md`
+* **Реализация**: `IMPLEMENTATION.md`
+* **Бэкенд**: `server/README.md`
+* **Сводка**: `BACKEND_SUMMARY.md`
 
-## 🛠️ Tech Stack
+## 🛠️ Технологии
 
 **Frontend:** React 18 • TypeScript • Vite • Tailwind CSS • Framer Motion
 **Backend:** Express.js • Node.js 20 • SQLite • better-sqlite3 • Docker
 
 ---
 
-**🌍 Arctic Network - Monitor the Arctic, Protect the Future 🚀**
+**🌍 Arctic Network — Мониторинг Арктики во имя будущего 🚀**
